@@ -61,13 +61,22 @@ Without this step, the sign-in emails link back to the wrong place.
 
 ### 4. Sign-in emails
 
-Supabase's built-in email service only sends a few sign-in emails per hour. That is enough for testing with your group, but not for a whole class signing in at once. Before you share the link widely:
+Supabase's built-in email service only sends a few sign-in emails per hour for the whole site. Past that, people see "Too many sign-in emails were sent just now." To lift the limit, send the emails through a Gmail account (up to about 500 a day, and no domain needed):
 
-1. Make a free account at [resend.com](https://resend.com) (3,000 emails a month) and create an API key.
-2. In Supabase, open **Authentication → Emails → SMTP Settings**, turn on custom SMTP and enter Resend's details: host `smtp.resend.com`, port `465`, user `resend`, password = your Resend API key.
-3. Optionally, edit the **Magic Link** email template so it says "Take A Tar Heel".
+1. Turn on 2-step verification for the Google account, then create an app password at [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords). Name it "Take A Tar Heel" and copy the 16-character password.
+2. In Supabase, open **Authentication → Emails → SMTP Settings** and turn on **Enable custom SMTP**:
+   - Sender email: the Gmail address
+   - Sender name: `Take A Tar Heel`
+   - Host: `smtp.gmail.com`
+   - Port: `465`
+   - Username: the Gmail address
+   - Password: the app password
+3. Click **Save**, then open **Authentication → Rate Limits** and raise **Rate limit for sending emails** (for example, to 100 per hour).
+4. Optional: edit the **Magic Link** template under **Authentication → Emails** so it mentions Take A Tar Heel.
 
-UNC mail sometimes files new senders under Junk. Tell testers to check there.
+People only sign in once per device; the site keeps them signed in afterward. UNC mail sometimes files new senders under Junk, so tell testers to check there.
+
+If you later buy a domain (for example takeatarheel.com), a service like Resend or Brevo can send from that domain instead.
 
 ## Who can see what
 
