@@ -1,0 +1,1950 @@
+<title>Take A Tar Heel</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,600;0,700;0,800;1,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a ride-app storefront in Carolina blue. Navy top bar, a booking card (pickup → drop-off → when) beside a campus route map, ride options listed like fare cards, app tabs for joining, creating, schedules, profiles and organizers, a driver band with a gas-money calculator, a live survey, then safety and FAQ. */
+:root {
+  --bg: #FFFFFF;
+  --surface: #F2F6FA;
+  --surface-2: #E7EEF5;
+  --ink: #0E1E36;
+  --muted: #56667C;
+  --line: #DFE6EE;
+  --brand: #4B9CD3;
+  --brand-soft: #DCEBF7;
+  --link: #1C6AA3;
+  --btn: #13294B;
+  --btn-ink: #FFFFFF;
+  --ok: #1F7A48;
+  --warn: #A86206;
+  --danger: #B3372E;
+  --star: #E8A100;
+  --band: #13294B;
+  --band-2: #1B355E;
+  --band-ink: #F2F7FC;
+  --band-dim: rgba(242,247,252,.74);
+  --band-line: rgba(242,247,252,.14);
+  --band-brand: #7BB8E3;
+  --map-bg: #EAF1F8;
+  --map-road: #FFFFFF;
+  --map-block: #D9E5F0;
+  --font-display: "Poppins", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A1424; --surface: #12213A; --surface-2: #182A47; --ink: #EAF2FA; --muted: #A3B4C8; --line: #24395B;
+    --brand: #7BB8E3; --brand-soft: #1A3456; --link: #8CC4EB; --btn: #7BB8E3; --btn-ink: #0A1424;
+    --ok: #5CC48A; --warn: #F0AE45; --danger: #FF8A80; --star: #FFC94A;
+    --band: #071021; --band-2: #0F1D35; --map-bg: #12213A; --map-road: #24395B; --map-block: #182A47;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A1424; --surface: #12213A; --surface-2: #182A47; --ink: #EAF2FA; --muted: #A3B4C8; --line: #24395B;
+  --brand: #7BB8E3; --brand-soft: #1A3456; --link: #8CC4EB; --btn: #7BB8E3; --btn-ink: #0A1424;
+  --ok: #5CC48A; --warn: #F0AE45; --danger: #FF8A80; --star: #FFC94A;
+  --band: #071021; --band-2: #0F1D35; --map-bg: #12213A; --map-road: #24395B; --map-block: #182A47;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3, h4 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.12; letter-spacing: -0.01em; }
+p { margin: 0; }
+a { color: var(--link); }
+button, input, select, textarea { font: inherit; }
+.tnum { font-variant-numeric: tabular-nums; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+.eyebrow { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--link); }
+section { scroll-margin-top: 12px; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; font-size: 16px; border-radius: 8px; padding: 13px 20px; text-decoration: none; cursor: pointer; border: 0; white-space: nowrap; }
+.btn.primary { background: var(--btn); color: var(--btn-ink); }
+.btn.primary:hover { opacity: .92; }
+.btn.soft { background: var(--surface-2); color: var(--ink); }
+.btn.soft:hover { background: var(--line); }
+.btn.brand { background: var(--band-brand); color: #0A1424; }
+.btn.brand:hover { filter: brightness(1.06); }
+.btn.on-band { background: transparent; color: var(--band-ink); border: 1px solid var(--band-dim); }
+.btn.on-band:hover { border-color: var(--band-ink); }
+.btn.sm { padding: 9px 14px; font-size: 14px; }
+.btn[disabled] { opacity: .5; cursor: default; }
+.btn.block { width: 100%; }
+
+/* Header band */
+.topbar { background: var(--band); color: var(--band-ink); }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; padding-block: 14px; flex-wrap: wrap; }
+.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--band-ink); }
+.logo svg { width: 40px; height: 40px; flex: none; }
+.wordmark { font-family: var(--font-display); font-weight: 800; font-style: italic; font-size: 21px; line-height: 1; letter-spacing: -0.01em; white-space: nowrap; }
+.wordmark span { color: var(--band-brand); }
+.nav { display: flex; align-items: center; gap: 6px 20px; flex-wrap: wrap; }
+.nav a.navlink { color: var(--band-ink); text-decoration: none; font-weight: 600; font-size: 15px; }
+.nav a.navlink:hover { color: var(--band-brand); }
+.pill { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; border: 1px solid var(--band-line); border-radius: 999px; padding: 4px 11px; white-space: nowrap; color: var(--band-dim); }
+.pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--band-dim); }
+.pill[data-state="live"]::before { background: #5CC48A; }
+.pill[data-state="view"]::before { background: var(--band-brand); }
+.pill[data-state="preview"]::before { background: #F0AE45; }
+@media (prefers-reduced-motion: no-preference) {
+  .pill[data-state="live"]::before { animation: blink 2.4s ease-in-out infinite; }
+  @keyframes blink { 50% { opacity: .35; } }
+}
+
+/* Hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; padding-block: 48px 56px; }
+.hero-copy { display: grid; gap: 22px; min-width: 0; }
+.hero h1 { font-size: clamp(38px, 5.6vw, 62px); font-weight: 800; }
+.hero h1 span { color: var(--brand); }
+.hero .lede { font-size: 18px; color: var(--muted); max-width: 52ch; }
+.book { display: grid; gap: 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 18px; box-shadow: 0 10px 30px rgba(14,30,54,.08); max-width: 520px; }
+.legs { display: grid; gap: 8px; position: relative; }
+.legs::before { content: ""; position: absolute; left: 21px; top: 26px; bottom: 26px; width: 2px; background: var(--ink); opacity: .7; }
+.leg { position: relative; }
+.leg::before { content: ""; position: absolute; left: 16px; top: 50%; width: 12px; height: 12px; transform: translateY(-50%); background: var(--ink); border-radius: 50%; z-index: 1; pointer-events: none; }
+.leg.to::before { border-radius: 2px; }
+.leg select { padding-left: 42px; }
+.book-row { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 8px; }
+.book-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fieldbox { display: grid; gap: 4px; min-width: 0; align-content: start; }
+.fieldbox > label, .lab { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+select, input[type="text"], input[type="email"], input[type="time"], textarea {
+  color: var(--ink); background: var(--surface); border: 1px solid transparent; border-radius: 8px; padding: 12px; width: 100%; font-size: 16px; min-height: 48px;
+}
+textarea { min-height: 88px; resize: vertical; }
+select:hover, input:hover, textarea:hover { border-color: var(--line); }
+select:focus, input:focus, textarea:focus { border-color: var(--brand); }
+.hint { font-size: 13px; color: var(--muted); }
+
+.mapcard { position: relative; border-radius: 18px; overflow: hidden; background: var(--map-bg); aspect-ratio: 5 / 4; max-width: 100%; }
+.mapcard svg { display: block; width: 100%; height: 100%; }
+.map-chip { position: absolute; background: var(--bg); color: var(--ink); border-radius: 12px; padding: 10px 14px; box-shadow: 0 8px 24px rgba(14,30,54,.16); display: grid; gap: 2px; font-size: 13px; }
+.map-chip b { font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+.map-chip.a { left: 6%; bottom: 7%; }
+.map-chip.b { right: 6%; top: 7%; }
+.map-chip .stars { color: var(--star); }
+
+/* Suggestions */
+.suggest { padding-block: 8px 56px; display: grid; gap: 18px; }
+.suggest h2 { font-size: clamp(26px, 3.6vw, 34px); font-weight: 700; }
+.cards4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.scard { background: var(--surface); border-radius: 14px; padding: 18px; display: grid; grid-template-columns: minmax(0, 1fr) 56px; gap: 10px; align-content: start; text-decoration: none; color: var(--ink); border: 1px solid transparent; }
+.scard:hover { border-color: var(--brand); }
+.scard h3 { font-size: 18px; font-weight: 700; }
+.scard p { font-size: 14px; color: var(--muted); grid-column: 1 / -1; }
+.scard svg { width: 56px; height: 56px; }
+.scard .go { grid-column: 1 / -1; font-size: 14px; font-weight: 600; background: var(--bg); border-radius: 999px; padding: 6px 14px; width: fit-content; }
+
+/* App */
+.app { padding-block: 56px; border-top: 1px solid var(--line); }
+.app-in { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); }
+.section-head { display: grid; gap: 8px; }
+.section-head h2 { font-size: clamp(30px, 4.4vw, 44px); font-weight: 800; }
+.section-head p { color: var(--muted); max-width: 64ch; }
+.app-bar { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
+.tabs { display: inline-flex; background: var(--surface); border-radius: 999px; padding: 4px; gap: 4px; max-width: 100%; overflow-x: auto; }
+.tab { font-weight: 600; border: 0; background: transparent; color: var(--ink); padding: 10px 16px; border-radius: 999px; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; }
+.tab[aria-selected="true"] { background: var(--btn); color: var(--btn-ink); }
+.count { font-size: 12px; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--brand); color: #0A1424; display: inline-grid; place-items: center; font-weight: 700; }
+.me-chip { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font-weight: 600; font-size: 15px; background: var(--surface); border-radius: 999px; padding: 4px 14px 4px 4px; }
+.me-chip:hover { background: var(--surface-2); }
+.err { color: var(--danger); font-size: 14px; font-weight: 600; }
+.ok-msg { color: var(--ok); font-size: 14px; font-weight: 600; }
+.notice { display: grid; gap: 4px; background: var(--brand-soft); border-radius: 12px; padding: 12px 16px; font-size: 15px; }
+.notice p { color: var(--muted); }
+.panel { display: grid; gap: 16px; }
+
+.filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.filter-toggles { display: flex; flex-wrap: wrap; gap: 4px 22px; }
+.check { display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; padding-block: 6px; }
+.check input { width: 20px; height: 20px; accent-color: var(--brand); margin: 0; flex: none; }
+
+/* Avatars */
+.av { width: 32px; height: 32px; border-radius: 50%; flex: none; display: inline-grid; place-items: center; overflow: hidden; font-size: 13px; font-weight: 700; color: #fff; background: var(--btn); }
+.av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.av.lg { width: 96px; height: 96px; font-size: 32px; }
+.av.md { width: 44px; height: 44px; font-size: 16px; }
+
+/* Ride options list */
+.options { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.options-head { display: flex; justify-content: space-between; align-items: center; gap: 6px 14px; padding: 14px 18px; background: var(--surface); flex-wrap: wrap; }
+.options-head h3 { font-size: 18px; font-weight: 700; }
+.options-head p { font-size: 14px; color: var(--muted); }
+.options-head .demand { color: var(--warn); font-weight: 600; }
+.opt { display: grid; grid-template-columns: 92px minmax(0, 1fr) auto; gap: 8px 18px; align-items: center; padding: 16px 18px; border-top: 1px solid var(--line); }
+.opt:first-child { border-top: 0; }
+.opt .t { font-family: var(--font-display); font-weight: 700; font-size: 24px; line-height: 1; }
+.opt .t small { display: block; font-family: var(--font-body); font-weight: 400; font-size: 12px; color: var(--muted); margin-top: 6px; }
+.opt .who { display: grid; gap: 4px; min-width: 0; }
+.opt .name { font-weight: 700; font-size: 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.opt .detail { font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+.opt .bio { font-size: 14px; overflow-wrap: anywhere; }
+.opt .dnote { font-size: 14px; font-style: italic; overflow-wrap: anywhere; }
+.opt .right { display: grid; justify-items: end; gap: 8px; }
+.price { font-family: var(--font-display); font-weight: 700; font-size: 22px; line-height: 1; }
+.price small { font-family: var(--font-body); font-weight: 400; font-size: 12px; color: var(--muted); }
+.rating { display: inline-flex; align-items: center; gap: 3px; font-size: 14px; font-weight: 600; color: var(--ink); white-space: nowrap; }
+.rating .s { color: var(--star); }
+.rating .n { color: var(--muted); font-weight: 400; }
+.tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: var(--surface-2); color: var(--ink); white-space: nowrap; }
+.tag.sample { background: transparent; border: 1px dashed var(--muted); color: var(--muted); }
+.tag.mine { background: var(--brand); color: #0A1424; }
+.tag.near { background: var(--brand-soft); color: var(--link); }
+.tag.access { background: var(--surface-2); color: var(--ok); }
+.seats { display: inline-flex; gap: 3px; vertical-align: -1px; margin-right: 3px; }
+.seats i { width: 9px; height: 9px; border-radius: 2px; background: var(--brand); }
+.seats i.taken { background: var(--line); }
+.opt .note { grid-column: 2 / -1; font-size: 14px; font-weight: 600; }
+.note.good { color: var(--ok); } .note.wait { color: var(--warn); } .note.bad { color: var(--danger); }
+.opt-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px 16px; padding: 14px 18px; border-top: 1px solid var(--line); background: var(--surface); flex-wrap: wrap; font-size: 14px; color: var(--muted); }
+.empty { padding: 28px 18px; display: grid; gap: 10px; justify-items: start; }
+.empty .big { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--ink); }
+.empty p { color: var(--muted); max-width: 58ch; }
+.row-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* Create form */
+.create-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+.form .full { grid-column: 1 / -1; }
+.side { display: grid; gap: 12px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); min-width: 0; }
+.plan { display: grid; gap: 8px; background: var(--surface); border-radius: 14px; padding: 16px; }
+.plan ol { margin: 0; padding: 0; list-style: none; display: grid; }
+.plan li { display: grid; grid-template-columns: 82px 1fr; gap: 12px; padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 15px; }
+.plan li:last-child { border-bottom: 0; }
+.demand-line { font-size: 15px; color: var(--muted); }
+.demand-line strong { color: var(--ink); }
+
+/* Segmented + day chips */
+.seg { display: inline-flex; background: var(--surface); border-radius: 10px; padding: 4px; gap: 4px; flex-wrap: wrap; }
+.seg button { border: 0; background: transparent; color: var(--ink); font-weight: 600; padding: 9px 14px; border-radius: 8px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--btn); color: var(--btn-ink); }
+.days { display: flex; gap: 6px; flex-wrap: wrap; }
+.day { position: relative; }
+.day input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.day span { display: grid; place-items: center; min-width: 44px; height: 44px; padding: 0 8px; border-radius: 10px; background: var(--surface); font-weight: 700; font-size: 14px; }
+.day input:checked + span { background: var(--btn); color: var(--btn-ink); }
+.day input:focus-visible + span { outline: 3px solid var(--brand); outline-offset: 2px; }
+
+/* Schedule */
+.sched-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.classes { display: grid; gap: 12px; }
+.class-row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr) 120px auto; gap: 10px; align-items: end; background: var(--surface); border-radius: 12px; padding: 12px; }
+.class-row .days-wrap { grid-column: 1 / -1; display: flex; gap: 10px 16px; align-items: center; flex-wrap: wrap; }
+.class-row input, .class-row select { background: var(--bg); }
+.icon-btn { border: 0; background: transparent; color: var(--muted); cursor: pointer; border-radius: 8px; padding: 10px; font-weight: 600; font-size: 14px; }
+.icon-btn:hover { color: var(--danger); background: var(--bg); }
+.week { display: grid; gap: 10px; }
+.wk { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.wk b { display: block; }
+.wk .meta { font-size: 14px; color: var(--muted); }
+.wk .row-actions { grid-column: 1 / -1; }
+
+/* Profile */
+.prof-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.photo-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.file-btn { position: relative; overflow: hidden; }
+.file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.pcard { background: var(--band); color: var(--band-ink); border-radius: 18px; padding: 22px; display: grid; gap: 12px; justify-items: start; }
+.pcard .nm { font-family: var(--font-display); font-weight: 700; font-size: 22px; }
+.pcard .sub { color: var(--band-dim); font-size: 14px; }
+.pcard .bio { font-size: 15px; overflow-wrap: anywhere; }
+.pcard .rating { color: var(--band-ink); }
+.pcard .rating .n { color: var(--band-dim); }
+
+/* My rides */
+.mine { display: grid; gap: 24px; }
+.mine h3 { font-size: 22px; font-weight: 700; }
+.mine-group { display: grid; gap: 12px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+.card { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.card h4 { font-size: 17px; font-weight: 700; }
+.card .meta { font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+.status { display: inline-flex; align-items: center; font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 999px; width: fit-content; background: var(--surface-2); }
+.status.requested { color: var(--warn); } .status.confirmed { color: var(--ok); } .status.declined, .status.gone { color: var(--danger); } .status.waitlist { color: var(--link); }
+.riders { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--line); }
+.riders > li { display: grid; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.riders .top-line { display: flex; justify-content: space-between; align-items: center; gap: 8px 10px; flex-wrap: wrap; }
+.riders .who-l { font-weight: 600; display: inline-flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.riders .none { color: var(--muted); font-size: 15px; }
+.mini { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.sbtn { font-weight: 600; font-size: 14px; border-radius: 8px; padding: 7px 12px; cursor: pointer; border: 0; background: var(--surface-2); color: var(--ink); white-space: nowrap; }
+.sbtn:hover { background: var(--line); }
+.sbtn.go { background: var(--btn); color: var(--btn-ink); }
+.sbtn.warn { color: var(--danger); background: transparent; border: 1px solid currentColor; }
+.sbtn[disabled] { opacity: .5; cursor: default; }
+.blank { background: var(--surface); border-radius: 14px; padding: 18px; display: grid; gap: 10px; justify-items: start; color: var(--muted); }
+
+/* Rating widget */
+.rate { display: grid; gap: 8px; background: var(--surface); border-radius: 10px; padding: 10px 12px; }
+.rate .q { font-size: 14px; font-weight: 600; }
+.stars-in { display: flex; gap: 2px; }
+.star-btn { border: 0; background: transparent; cursor: pointer; padding: 2px; line-height: 0; border-radius: 6px; }
+.star-btn svg { width: 28px; height: 28px; fill: var(--line); }
+.star-btn.on svg { fill: var(--star); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 13px; font-weight: 600; border-radius: 999px; padding: 5px 11px; cursor: pointer; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+.chip[aria-pressed="true"] { background: var(--btn); color: var(--btn-ink); border-color: var(--btn); }
+
+/* Organizer */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.stat { background: var(--surface); border-radius: 14px; padding: 14px 16px; display: grid; gap: 2px; }
+.stat b { font-family: var(--font-display); font-size: 30px; font-weight: 800; line-height: 1.1; }
+.stat span { font-size: 13px; color: var(--muted); }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+table { border-collapse: collapse; width: 100%; min-width: 820px; font-size: 14px; }
+th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: var(--surface); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td .sub { color: var(--muted); font-size: 13px; }
+td .hit { color: var(--ok); font-weight: 600; }
+td .miss { color: var(--muted); }
+.cell-person { display: flex; gap: 10px; align-items: center; }
+.copy-fallback { width: 100%; min-height: 140px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+.comments { display: grid; gap: 10px; }
+.comments blockquote { margin: 0; background: var(--surface); border-radius: 10px; padding: 12px 14px; font-size: 15px; }
+.comments cite { display: block; font-style: normal; font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+/* Drive band */
+.drive { background: var(--band); color: var(--band-ink); }
+.drive-in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; padding-block: 64px; align-items: center; }
+.drive h2 { font-size: clamp(32px, 4.6vw, 48px); font-weight: 800; }
+.drive h2 span { color: var(--band-brand); }
+.drive .lede { color: var(--band-dim); font-size: 17px; max-width: 52ch; }
+.drive-copy { display: grid; gap: 22px; min-width: 0; }
+.perks { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.perks li { display: grid; grid-template-columns: 36px 1fr; gap: 12px; align-items: start; }
+.perks svg { width: 36px; height: 36px; }
+.perks b { display: block; font-size: 16px; }
+.perks span { color: var(--band-dim); font-size: 15px; }
+.calc { background: var(--band-2); border-radius: 18px; padding: 22px; display: grid; gap: 16px; min-width: 0; }
+.calc h3 { font-size: 20px; font-weight: 700; }
+.calc .rowc { display: grid; gap: 6px; }
+.calc .rowc .top-line { display: flex; justify-content: space-between; font-size: 15px; }
+.calc .rowc output { font-weight: 700; }
+.calc input[type="range"] { width: 100%; accent-color: var(--band-brand); }
+.calc .total { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--band-line); border-radius: 12px; overflow: hidden; }
+.calc .total div { background: var(--band); padding: 14px; display: grid; gap: 2px; }
+.calc .total b { font-family: var(--font-display); font-size: 30px; font-weight: 800; color: var(--band-brand); line-height: 1.1; }
+.calc .total span { font-size: 13px; color: var(--band-dim); }
+.calc .fine { font-size: 13px; color: var(--band-dim); }
+
+/* Compare */
+.compare { padding-block: 64px; display: grid; gap: 24px; }
+.cmp { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.cmp div { background: var(--surface); border-radius: 14px; padding: 18px; display: grid; gap: 6px; align-content: start; }
+.cmp div.win { background: var(--btn); color: var(--btn-ink); }
+.cmp div.win .k, .cmp div.win p { color: inherit; opacity: .85; }
+.cmp h3 { font-size: 20px; font-weight: 700; }
+.cmp .k { font-size: 13px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.cmp .v { font-family: var(--font-display); font-size: 28px; font-weight: 800; line-height: 1.1; }
+.cmp p { font-size: 14px; color: var(--muted); }
+.race { background: var(--surface); border-radius: 14px; padding: 20px; display: grid; gap: 16px; }
+.race-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 12px; flex-wrap: wrap; }
+.race-head h3 { font-size: 18px; font-weight: 700; }
+.race-head p { font-size: 14px; color: var(--muted); }
+.lane { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center; }
+.lane-label { font-weight: 600; font-size: 15px; }
+.track { position: relative; height: 40px; }
+.track .bell { position: absolute; top: -6px; bottom: -6px; left: 75%; width: 0; border-left: 2px dashed var(--ink); }
+.bar { position: absolute; left: 0; top: 6px; height: 28px; border-radius: 6px; display: flex; align-items: center; padding: 0 10px; font-size: 14px; font-weight: 700; white-space: nowrap; color: #fff; }
+.bar.walk { width: 100%; background: #B86E08; }
+.bar.ride { width: 35%; background: #22784A; }
+.scale { display: grid; grid-template-columns: 64px 1fr; gap: 12px; }
+.scale-inner { position: relative; height: 20px; font-size: 13px; color: var(--muted); }
+.scale-inner span { position: absolute; transform: translateX(-50%); }
+.scale-inner .bell-label { color: var(--ink); font-weight: 700; }
+@media (prefers-reduced-motion: no-preference) {
+  .bar { transform-origin: left center; animation: grow 1.1s cubic-bezier(.2,.7,.2,1) both; }
+  .bar.ride { animation-delay: .35s; }
+  @keyframes grow { from { transform: scaleX(0.04); } to { transform: scaleX(1); } }
+}
+
+/* Survey */
+.survey { padding-block: 64px; border-top: 1px solid var(--line); display: grid; gap: 24px; }
+.survey-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.sv-form { display: grid; gap: 18px; background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+.sv-form fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; min-width: 0; }
+.sv-form legend { font-weight: 700; font-size: 16px; padding: 0; margin-bottom: 8px; }
+.opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt-pill { position: relative; }
+.opt-pill input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.opt-pill span { display: inline-block; padding: 8px 14px; border-radius: 999px; background: var(--surface); font-size: 14px; font-weight: 600; border: 1px solid transparent; }
+.opt-pill input:checked + span { background: var(--btn); color: var(--btn-ink); }
+.opt-pill input:focus-visible + span { outline: 3px solid var(--brand); outline-offset: 2px; }
+.scale5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.scale5 .opt-pill span { display: grid; place-items: center; padding: 10px 0; font-size: 16px; border-radius: 10px; }
+.scale-ends { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+.results { display: grid; gap: 16px; }
+.res-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.res-q { background: var(--surface); border-radius: 14px; padding: 16px; display: grid; gap: 10px; }
+.res-q h4 { font-size: 15px; font-weight: 700; font-family: var(--font-body); }
+.hbars { display: grid; gap: 8px; }
+.hbar { display: grid; grid-template-columns: minmax(96px, 1fr) minmax(0, 1.6fr) 72px; gap: 10px; align-items: center; font-size: 14px; }
+.hbar .trk { height: 14px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+.hbar .fill { height: 100%; background: var(--brand); border-radius: 0 4px 4px 0; min-width: 2px; }
+.hbar .v { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.hbar:hover .fill { background: var(--link); }
+
+/* Safety + FAQ */
+.safety { padding-block: 64px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; border-top: 1px solid var(--line); }
+.safety > div { display: grid; gap: 18px; align-content: start; }
+.rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.rules li { display: grid; grid-template-columns: 40px 1fr; gap: 12px; }
+.rules .ic { width: 40px; height: 40px; border-radius: 10px; background: var(--brand-soft); display: grid; place-items: center; }
+.rules .ic svg { width: 22px; height: 22px; stroke: var(--link); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.rules b { display: block; }
+.rules span { color: var(--muted); font-size: 15px; }
+.ratebox { background: var(--surface); border-radius: 14px; padding: 18px; display: grid; gap: 12px; }
+.ratebox .big { font-family: var(--font-display); font-weight: 800; font-size: 44px; line-height: 1; display: flex; align-items: center; gap: 10px; }
+.ratebox .big svg { width: 36px; height: 36px; fill: var(--star); }
+.ratebox p { color: var(--muted); font-size: 15px; }
+.faq { padding-block: 0 64px; display: grid; gap: 18px; }
+.faq details { border-bottom: 1px solid var(--line); padding-block: 16px; }
+.faq summary { cursor: pointer; font-weight: 600; font-size: 17px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-family: var(--font-display); font-size: 22px; line-height: 1; color: var(--link); }
+.faq details[open] summary::after { content: "–"; }
+.faq details p { color: var(--muted); margin-top: 10px; max-width: 70ch; }
+
+/* Footer */
+.foot { background: var(--band); color: var(--band-dim); }
+.foot-in { padding-block: 40px 48px; display: grid; gap: 22px; font-size: 14px; }
+.foot-top { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; align-items: center; }
+.foot-links { display: flex; gap: 8px 22px; flex-wrap: wrap; }
+.foot-links a { color: var(--band-ink); text-decoration: none; font-weight: 600; }
+.foot p { max-width: 80ch; }
+
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--btn); color: var(--btn-ink); padding: 12px 18px; border-radius: 12px; font-weight: 600; font-size: 15px; max-width: min(92vw, 520px); box-shadow: 0 8px 28px rgba(8,16,28,.3); z-index: 20; text-align: center; }
+
+@media (max-width: 980px) {
+  .cards4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 880px) {
+  .hero, .drive-in, .safety, .create-grid, .sched-grid, .prof-grid, .survey-grid { grid-template-columns: 1fr; }
+  .hero { padding-block: 28px 40px; gap: 28px; }
+  .side { position: static; }
+  .book { max-width: none; }
+  .nav a.navlink { display: none; }
+}
+@media (max-width: 640px) {
+  .cards4 { grid-template-columns: 1fr; }
+  .filters, .form, .cmp { grid-template-columns: 1fr; }
+  .opt { grid-template-columns: 70px minmax(0, 1fr); }
+  .opt .right { grid-column: 2; justify-items: start; grid-auto-flow: column; align-items: center; justify-content: start; gap: 14px; }
+  .opt .t { font-size: 20px; }
+  .book-actions { grid-template-columns: 1fr; }
+  .top .btn.brand { display: none; }
+  .class-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .class-row .cname, .class-row .cplace { grid-column: 1 / -1; }
+  .hbar { grid-template-columns: minmax(84px, 1fr) minmax(0, 1fr) 64px; }
+}
+@media (max-width: 420px) {
+  .lane, .scale { grid-template-columns: 48px 1fr; }
+  .bar { font-size: 12px; padding: 0 8px; }
+  .tab { padding: 9px 12px; }
+  .book-row { grid-template-columns: 1fr; }
+  .res-tiles { grid-template-columns: 1fr; }
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.6l2.9 6 6.5.8-4.8 4.5 1.2 6.5L12 17.2l-5.8 3.2 1.2-6.5L2.6 9.4l6.5-.8z"/></symbol>
+  </defs>
+</svg>
+
+<div class="topbar">
+  <div class="wrap">
+    <header class="top">
+      <a class="logo" href="#join" aria-label="Take A Tar Heel home">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <rect width="48" height="48" rx="12" fill="#0B1F3F"/>
+          <path d="M8 36c10 4 24 3 33-4" fill="none" stroke="#7BB8E3" stroke-width="3" stroke-linecap="round"/>
+          <path d="M14 22l3.2-7.2c.5-1.1 1.6-1.8 2.8-1.8h8c1.2 0 2.3.7 2.8 1.8L34 22c1.7.2 3 1.6 3 3.3V30c0 1-.8 1.8-1.8 1.8H12.8c-1 0-1.8-.8-1.8-1.8v-4.7c0-1.7 1.3-3.1 3-3.3z" fill="#fff"/>
+          <path d="M17.6 21.5l2.2-5.2h8.4l2.2 5.2z" fill="#4B9CD3"/>
+          <rect x="13.5" y="25" width="5" height="2.6" rx="1.3" fill="#7BB8E3"/>
+          <rect x="29.5" y="25" width="5" height="2.6" rx="1.3" fill="#7BB8E3"/>
+          <path d="M38 6.5a4.5 4.5 0 0 0-4.5 4.5c0 3.2 4.5 7.5 4.5 7.5s4.5-4.3 4.5-7.5A4.5 4.5 0 0 0 38 6.5z" fill="#fff"/>
+          <circle cx="38" cy="11" r="1.7" fill="#0B1F3F"/>
+        </svg>
+        <span class="wordmark">Take A <span>Tar Heel</span></span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <a class="navlink" href="#join">Ride</a>
+        <a class="navlink" href="#drive">Drive</a>
+        <a class="navlink" href="#schedule">Schedule</a>
+        <a class="navlink" href="#survey">Survey</a>
+        <a class="navlink" href="#safety">Safety</a>
+        <span class="pill" id="status-pill" data-state="loading" role="status">Connecting…</span>
+        <a class="btn brand sm" href="#create">Create a ride</a>
+      </nav>
+    </header>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <h1 id="hero-title">Get to class with a <span>Tar Heel</span> behind the wheel</h1>
+        <p class="lede">Older students with cars drive younger students without them, for a few dollars a seat. Pick where you are, where you need to be and when, and join a ride that gets you there before class starts.</p>
+        <form class="book" id="book" novalidate>
+          <div class="legs">
+            <div class="leg from"><select id="b-from" aria-label="Pickup location"></select></div>
+            <div class="leg to"><select id="b-to" aria-label="Drop-off location"></select></div>
+          </div>
+          <div class="book-row">
+            <div class="fieldbox"><label for="b-when">When</label><select id="b-when"></select></div>
+            <div class="fieldbox"><label for="b-time">Be there by</label><input type="time" id="b-time" step="300"></div>
+          </div>
+          <div class="book-actions">
+            <button class="btn primary" type="submit">Join a ride</button>
+            <button class="btn soft" type="button" id="b-create">Create a ride</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="mapcard" role="img" aria-label="Map sketch of a ride from Granville Towers to the McColl Building, about 7 minutes, $3 a seat.">
+        <svg viewBox="0 0 500 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <rect width="500" height="400" fill="var(--map-bg)"/>
+          <g fill="var(--map-block)">
+            <rect x="20" y="20" width="120" height="80" rx="8"/><rect x="170" y="20" width="140" height="80" rx="8"/><rect x="340" y="20" width="140" height="80" rx="8"/>
+            <rect x="20" y="130" width="120" height="110" rx="8"/><rect x="170" y="130" width="140" height="110" rx="8"/><rect x="340" y="130" width="140" height="110" rx="8"/>
+            <rect x="20" y="270" width="120" height="110" rx="8"/><rect x="170" y="270" width="140" height="110" rx="8"/><rect x="340" y="270" width="140" height="110" rx="8"/>
+          </g>
+          <g stroke="var(--map-road)" stroke-width="16" stroke-linecap="round">
+            <path d="M0 115H500"/><path d="M0 255H500"/><path d="M155 0V400"/><path d="M325 0V400"/>
+          </g>
+          <path d="M80 115H155V255H325V330" fill="none" stroke="var(--brand)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="80" cy="115" r="11" fill="var(--ink)"/><circle cx="80" cy="115" r="4" fill="var(--map-bg)"/>
+          <rect x="313" y="318" width="24" height="24" rx="4" fill="var(--ink)"/><rect x="321" y="326" width="8" height="8" fill="var(--map-bg)"/>
+          <g transform="translate(155 196)">
+            <circle r="17" fill="var(--btn)"/>
+            <path d="M-8 3l2-5c.3-.7 1-1.2 1.8-1.2h8.4c.8 0 1.5.5 1.8 1.2l2 5v4.2c0 .6-.4 1-1 1h-14c-.6 0-1-.4-1-1z" fill="var(--btn-ink)"/>
+          </g>
+        </svg>
+        <div class="map-chip a"><span>Granville Towers → McColl</span><b class="tnum">7 min · $3</b></div>
+        <div class="map-chip b"><span>Driver <span class="stars">★</span> 4.9</span><b>Arrive 8 min early</b></div>
+      </div>
+    </section>
+
+    <section class="suggest" aria-labelledby="suggest-title">
+      <h2 id="suggest-title">What do you need?</h2>
+      <div class="cards4">
+        <a class="scard" href="#join">
+          <h3>Join a ride</h3>
+          <svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="var(--brand-soft)"/><path d="M15 33l3.5-8c.5-1.2 1.6-1.9 2.9-1.9h13.2c1.3 0 2.4.7 2.9 1.9l3.5 8v5c0 .8-.7 1.5-1.5 1.5h-23c-.8 0-1.5-.7-1.5-1.5z" fill="var(--btn)"/><circle cx="21" cy="36" r="2" fill="var(--brand)"/><circle cx="35" cy="36" r="2" fill="var(--brand)"/></svg>
+          <p>See students already driving where you're going and request a seat.</p>
+          <span class="go">Find seats</span>
+        </a>
+        <a class="scard" href="#create">
+          <h3>Create a ride</h3>
+          <svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="var(--brand-soft)"/><circle cx="28" cy="28" r="12" fill="none" stroke="var(--btn)" stroke-width="4"/><path d="M28 22v12M22 28h12" stroke="var(--btn)" stroke-width="4" stroke-linecap="round"/></svg>
+          <p>Driving anyway? Post your route, set a price per seat and fill empty seats.</p>
+          <span class="go">Post a ride</span>
+        </a>
+        <a class="scard" href="#schedule">
+          <h3>Add your schedule</h3>
+          <svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="var(--brand-soft)"/><rect x="15" y="17" width="26" height="24" rx="4" fill="var(--btn)"/><path d="M15 24h26" stroke="var(--brand)" stroke-width="3"/><rect x="20" y="29" width="5" height="4" rx="1" fill="var(--brand)"/><rect x="31" y="29" width="5" height="4" rx="1" fill="var(--brand)"/></svg>
+          <p>Enter your classes once and see rides that line up with every one of them.</p>
+          <span class="go">My schedule</span>
+        </a>
+        <a class="scard" href="#survey">
+          <h3>Take the survey</h3>
+          <svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="var(--brand-soft)"/><rect x="17" y="30" width="5" height="10" rx="1.5" fill="var(--btn)"/><rect x="25.5" y="22" width="5" height="18" rx="1.5" fill="var(--btn)"/><rect x="34" y="16" width="5" height="24" rx="1.5" fill="var(--brand)"/></svg>
+          <p>Eight quick questions about how you get to class. See live results.</p>
+          <span class="go">2 minutes</span>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <section class="app" id="app" aria-labelledby="app-title">
+    <div class="wrap app-in">
+      <div class="section-head">
+        <span class="eyebrow">Live board</span>
+        <h2 id="app-title">Rides around campus</h2>
+        <p>Every ride arrives before the time you need to be there. Drivers set the price per seat; you pay them after the ride.</p>
+      </div>
+
+      <div class="notice" id="access-note" hidden><b id="access-title"></b><p id="access-body"></p></div>
+
+      <div class="app-bar">
+        <div class="tabs" role="tablist" aria-label="Rides">
+          <button class="tab" role="tab" id="tab-join" aria-controls="panel-join" aria-selected="true">Join a ride</button>
+          <button class="tab" role="tab" id="tab-create" aria-controls="panel-create" aria-selected="false">Create a ride</button>
+          <button class="tab" role="tab" id="tab-schedule" aria-controls="panel-schedule" aria-selected="false">My schedule</button>
+          <button class="tab" role="tab" id="tab-mine" aria-controls="panel-mine" aria-selected="false">My rides <span class="count" id="mine-count" hidden>0</span></button>
+          <button class="tab" role="tab" id="tab-profile" aria-controls="panel-profile" aria-selected="false">Profile</button>
+          <button class="tab" role="tab" id="tab-organizer" aria-controls="panel-organizer" aria-selected="false" hidden>Organizer</button>
+        </div>
+        <a class="me-chip" href="#profile" id="me-chip"><span id="me-chip-av"></span><span id="me-chip-name">Set up your profile</span></a>
+      </div>
+
+      <!-- JOIN -->
+      <div class="panel" id="panel-join" role="tabpanel" aria-labelledby="tab-join">
+        <div class="filters">
+          <div class="fieldbox"><label for="j-from">Pickup</label><select id="j-from"></select></div>
+          <div class="fieldbox"><label for="j-to">Drop-off</label><select id="j-to"></select></div>
+          <div class="fieldbox"><label for="j-when">When</label><select id="j-when"></select></div>
+          <div class="fieldbox"><label for="j-time">Be there by</label><input type="time" id="j-time" step="300"></div>
+        </div>
+        <div class="filter-toggles">
+          <label class="check"><input type="checkbox" id="j-access"> Room for crutches or a wheelchair</label>
+          <label class="check"><input type="checkbox" id="j-rated"> Drivers rated 4.5 and up</label>
+          <label class="check"><input type="checkbox" id="j-samples" checked> Show sample rides</label>
+        </div>
+        <div class="options">
+          <div class="options-head"><h3 id="opt-title">Rides</h3><p id="opt-sub" class="tnum"></p></div>
+          <div id="rows" aria-live="polite"></div>
+          <div class="opt-foot" id="opt-foot" hidden>
+            <span id="wait-text"></span>
+            <button class="btn soft sm" type="button" id="wait-btn"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CREATE -->
+      <div class="panel" id="panel-create" role="tabpanel" aria-labelledby="tab-create" hidden>
+        <div class="create-grid">
+          <form class="form" id="create-form" novalidate>
+            <div class="fieldbox"><label for="c-from">Picking up at</label><select id="c-from"></select></div>
+            <div class="fieldbox"><label for="c-to">Driving to</label><select id="c-to"></select></div>
+            <div class="fieldbox"><label for="c-when">When</label><select id="c-when"></select></div>
+            <div class="fieldbox"><label for="c-time">Arrive by</label><input type="time" id="c-time" step="300"><span class="hint">Aim 5 to 10 minutes before class starts.</span></div>
+            <div class="fieldbox"><label for="c-seats">Open seats</label>
+              <select id="c-seats"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option></select></div>
+            <div class="fieldbox"><label for="c-price">Price per seat</label>
+              <select id="c-price"><option value="0">Free</option><option value="2">$2</option><option value="3" selected>$3</option><option value="4">$4</option><option value="5">$5</option></select></div>
+            <div class="fieldbox full"><label for="c-car">Car</label><input type="text" id="c-car" placeholder="Gray Honda Civic" maxlength="40" autocomplete="off"></div>
+            <div class="fieldbox full"><label for="c-note">Note for riders (optional)</label><input type="text" id="c-note" placeholder="I'll wait by the front entrance for 2 minutes." maxlength="90" autocomplete="off"></div>
+            <label class="check full"><input type="checkbox" id="c-access"> My car has room for crutches or a folded wheelchair</label>
+            <p class="err full" id="c-err" hidden></p>
+            <button class="btn primary block full" type="submit" id="c-submit">Post my ride</button>
+          </form>
+          <div class="side">
+            <span class="lab">How riders will see it</span>
+            <div class="options"><div id="c-preview"></div></div>
+            <div class="plan"><span class="lab">Your trip</span><ol id="c-plan" class="tnum"></ol></div>
+            <p class="demand-line" id="c-demand"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCHEDULE -->
+      <div class="panel" id="panel-schedule" role="tabpanel" aria-labelledby="tab-schedule" hidden>
+        <div class="sched-grid">
+          <form class="form" id="sched-form" novalidate>
+            <div class="fieldbox full"><span class="lab">I want to</span>
+              <div class="seg" id="s-role" role="group" aria-label="Rider or driver">
+                <button type="button" data-v="rider" aria-pressed="true">Ride</button>
+                <button type="button" data-v="driver" aria-pressed="false">Drive</button>
+                <button type="button" data-v="both" aria-pressed="false">Both</button>
+              </div>
+            </div>
+            <div class="fieldbox"><label for="s-home">Where you usually start</label><select id="s-home"></select></div>
+            <div class="fieldbox" id="s-seats-box" hidden><label for="s-seats">Seats you can offer</label>
+              <select id="s-seats"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option></select></div>
+            <div class="fieldbox"><label for="s-email">UNC email (optional)</label><input type="email" id="s-email" placeholder="onyen@unc.edu" maxlength="80" autocomplete="email"><span class="hint">Only the organizers see this, to help match you.</span></div>
+            <div class="fieldbox full"><span class="lab">Classes you need to get to</span>
+              <div class="classes" id="s-classes"></div>
+              <button class="btn soft sm" type="button" id="s-add" style="justify-self:start">+ Add a class</button>
+            </div>
+            <p class="err full" id="s-err" hidden></p>
+            <div class="row-actions full"><button class="btn primary" type="submit" id="s-save">Save my schedule</button><span class="ok-msg" id="s-ok" hidden></span></div>
+          </form>
+          <div class="side">
+            <span class="lab">Your week</span>
+            <div class="week" id="s-week"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MINE -->
+      <div class="panel" id="panel-mine" role="tabpanel" aria-labelledby="tab-mine" hidden>
+        <div class="mine" id="mine"></div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="panel" id="panel-profile" role="tabpanel" aria-labelledby="tab-profile" hidden>
+        <div class="prof-grid">
+          <form class="form" id="prof-form" novalidate>
+            <div class="fieldbox full"><span class="lab">Profile photo</span>
+              <div class="photo-row">
+                <span id="p-av"></span>
+                <div class="row-actions">
+                  <label class="btn soft sm file-btn" id="p-upload-btn">Upload photo<input type="file" id="p-file" accept="image/png,image/jpeg,image/webp,image/gif"></label>
+                  <button class="btn soft sm" type="button" id="p-remove" hidden>Remove photo</button>
+                </div>
+              </div>
+              <span class="hint" id="p-photo-hint">A clear photo of your face helps your driver or riders find you at pickup.</span>
+            </div>
+            <div class="fieldbox full"><label for="p-name">Name on rides</label><input type="text" id="p-name" placeholder="First name and last initial" maxlength="24" autocomplete="off"></div>
+            <div class="fieldbox"><label for="p-year">Year</label>
+              <select id="p-year"><option value="">Choose one</option><option>First-year</option><option>Sophomore</option><option>Junior</option><option>Senior</option><option>Grad student</option></select></div>
+            <div class="fieldbox"><label for="p-program">Program</label>
+              <select id="p-program"><option value="">Choose one</option><option>Pre-business</option><option>BSBA</option><option>MBA</option><option>Master of Accounting</option><option>PhD</option><option>Another major</option></select></div>
+            <div class="fieldbox full"><label for="p-bio">Bio</label><textarea id="p-bio" maxlength="160" placeholder="Junior in BSBA from Charlotte. I drive in from Carrboro most mornings and always have the aux."></textarea><span class="hint" id="p-bio-count">0 / 160</span></div>
+            <p class="err full" id="p-err" hidden></p>
+            <div class="row-actions full"><button class="btn primary" type="submit" id="p-save">Save profile</button><span class="ok-msg" id="p-ok" hidden></span></div>
+          </form>
+          <div class="side">
+            <span class="lab">How others see you</span>
+            <div class="pcard" id="p-card"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORGANIZER -->
+      <div class="panel" id="panel-organizer" role="tabpanel" aria-labelledby="tab-organizer" hidden>
+        <div class="section-head">
+          <span class="eyebrow">Organizer · visible to editors only</span>
+          <h3 style="font-size:26px">Sign-ups &amp; matches</h3>
+          <p>Everyone who saved a schedule, with suggested drivers for each class. A match means a shared day, the same drop-off and arrival times within 20 minutes.</p>
+        </div>
+        <div class="stats tnum" id="o-stats"></div>
+        <div class="row-actions">
+          <button class="btn primary sm" type="button" id="o-csv-s">Copy schedules as CSV</button>
+          <button class="btn soft sm" type="button" id="o-csv-v">Copy survey as CSV</button>
+          <span class="hint" id="o-csv-status"></span>
+        </div>
+        <textarea class="copy-fallback" id="o-csv-fallback" hidden aria-label="CSV export"></textarea>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Person</th><th>Role</th><th>Contact</th><th>Classes</th><th>Possible matches</th></tr></thead>
+            <tbody id="o-rows"></tbody>
+          </table>
+        </div>
+        <div class="section-head"><h3 style="font-size:22px">Survey comments</h3><p>Answers to "Anything else we should know?" Only editors can read these.</p></div>
+        <div class="comments" id="o-comments"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="drive" id="drive" aria-labelledby="drive-title">
+    <div class="wrap drive-in">
+      <div class="drive-copy">
+        <span class="eyebrow" style="color:var(--band-brand)">For drivers</span>
+        <h2 id="drive-title">Already driving to class? <span>Fill your empty seats.</span></h2>
+        <p class="lede">Upperclassmen and grad students with a car post the trips they're making anyway. Riders chip in per seat, and you cover your gas and parking.</p>
+        <ul class="perks">
+          <li><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="18" fill="var(--band-2)"/><path d="M18 9v18M22.5 12.5c-1-1.3-2.6-2-4.5-2-2.5 0-4.5 1.4-4.5 3.4 0 4.6 9 2.6 9 7.2 0 2-2 3.4-4.5 3.4-1.9 0-3.6-.8-4.6-2.1" stroke="var(--band-brand)" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg><div><b>You set the price</b><span>Free up to $5 a seat. Riders pay you directly after the ride.</span></div></li>
+          <li><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="18" fill="var(--band-2)"/><circle cx="18" cy="18" r="8" fill="none" stroke="var(--band-brand)" stroke-width="2.4"/><path d="M18 13.5V18l3 2" stroke="var(--band-brand)" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg><div><b>No detours</b><span>Post the route you already drive. Riders meet you at a public pickup spot.</span></div></li>
+          <li><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="18" fill="var(--band-2)"/><use href="#i-star" x="8" y="8" width="20" height="20" fill="var(--band-brand)"/></svg><div><b>You choose who rides</b><span>See each rider's photo, bio and rating, then accept or decline.</span></div></li>
+        </ul>
+        <div class="row-actions"><a class="btn brand" href="#create">Create a ride</a><a class="btn on-band" href="#faq">Driver requirements</a></div>
+      </div>
+      <div class="calc" aria-labelledby="calc-title">
+        <h3 id="calc-title">Gas money estimate</h3>
+        <div class="rowc"><div class="top-line"><label for="k-seats">Seats you fill</label><output id="k-seats-o" for="k-seats">3</output></div><input type="range" id="k-seats" min="1" max="4" value="3"></div>
+        <div class="rowc"><div class="top-line"><label for="k-price">Price per seat</label><output id="k-price-o" for="k-price">$3</output></div><input type="range" id="k-price" min="1" max="5" value="3"></div>
+        <div class="rowc"><div class="top-line"><label for="k-trips">Trips per week</label><output id="k-trips-o" for="k-trips">3</output></div><input type="range" id="k-trips" min="1" max="10" value="3"></div>
+        <div class="total tnum">
+          <div><b id="k-week">$27</b><span>per week</span></div>
+          <div><b id="k-sem">$405</b><span>per 15-week semester</span></div>
+        </div>
+        <p class="fine">An estimate, not a guarantee. It depends on how many seats you actually fill.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <section class="compare" aria-labelledby="cmp-title">
+      <div class="section-head">
+        <span class="eyebrow">Why it works</span>
+        <h2 id="cmp-title">15 minutes between classes. A 20 minute walk.</h2>
+        <p>Students coming from North Campus can't reach McColl on foot in one passing period, and the bus doesn't line up with the bell.</p>
+      </div>
+      <div class="cmp">
+        <div><span class="k">Walk</span><h3>Free</h3><span class="v tnum">~20 min</span><p>Five minutes late to a class that started without you.</p></div>
+        <div><span class="k">Bus</span><h3>Free</h3><span class="v">Depends</span><p>Great when the schedule lines up with your classes. Often it doesn't.</p></div>
+        <div class="win"><span class="k">Take A Tar Heel</span><h3>About $3 a seat</h3><span class="v tnum">~7 min</span><p>Ride with a student already going there and walk in early.</p></div>
+      </div>
+      <div class="race" role="img" aria-label="Chart: walking takes about 20 minutes and arrives 5 minutes after class starts; a ride takes about 7 minutes and arrives 8 minutes early.">
+        <div class="race-head"><h3>The passing period</h3><p>Minutes after your last class ends · dashed line is when your next class starts</p></div>
+        <div class="lane"><span class="lane-label">Walk</span><div class="track"><div class="bar walk">~20 min · 5 late</div><div class="bell"></div></div></div>
+        <div class="lane"><span class="lane-label">Ride</span><div class="track"><div class="bar ride">~7 min · early</div><div class="bell"></div></div></div>
+        <div class="scale"><span></span><div class="scale-inner tnum"><span style="left:0%; transform:none">0</span><span style="left:25%">5</span><span style="left:50%">10</span><span class="bell-label" style="left:75%">15</span><span style="left:100%; transform:translateX(-100%)">20</span></div></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="survey" id="survey" aria-labelledby="survey-title">
+    <div class="wrap" style="display:grid; gap:24px; grid-template-columns:minmax(0,1fr)">
+      <div class="section-head">
+        <span class="eyebrow">Help us build it</span>
+        <h2 id="survey-title">How do you get to class?</h2>
+        <p>Take A Tar Heel is a prototype. Your answers tell us whether students would actually use it and what it should cost. Results update live as people answer.</p>
+      </div>
+      <div class="survey-grid">
+        <form class="sv-form" id="sv-form" novalidate>
+          <div id="sv-questions" style="display:grid; gap:20px"></div>
+          <div class="fieldbox"><label for="sv-comment">Anything else we should know? (optional)</label><textarea id="sv-comment" maxlength="400" placeholder="What would make you trust a student driver?"></textarea><span class="hint">Only the organizers see this.</span></div>
+          <p class="err" id="sv-err" hidden></p>
+          <div class="row-actions"><button class="btn primary" type="submit" id="sv-submit">Submit my answers</button><span class="ok-msg" id="sv-ok" hidden></span></div>
+        </form>
+        <div class="results" aria-live="polite">
+          <div class="section-head"><span class="lab" id="sv-count">Live results</span></div>
+          <div class="res-tiles stats tnum" id="sv-tiles"></div>
+          <div id="sv-bars" style="display:grid; gap:12px"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <section class="safety" id="safety" aria-labelledby="safety-title">
+      <div>
+        <div class="section-head"><span class="eyebrow">Safety</span><h2 id="safety-title">Built for students, by students</h2></div>
+        <ul class="rules">
+          <li><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span><div><b>Students only</b><span>The real version checks your Onyen before you can ride or drive.</span></div></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span><div><b>Real profiles</b><span>Every driver and rider has a photo, year and bio, so you know who you're meeting.</span></div></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><div><b>Public pickups</b><span>Rides start at listed campus spots, never at someone's room or apartment.</span></div></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 7h6"/><path d="M4 4l16 16"/></svg></span><div><b>No phone numbers posted</b><span>Requests and confirmations happen in the app.</span></div></li>
+        </ul>
+      </div>
+      <div>
+        <div class="section-head"><span class="eyebrow">Ratings</span><h2>Two-way ratings</h2></div>
+        <div class="ratebox">
+          <span class="big tnum"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-star"/></svg>1 to 5</span>
+          <p>After a confirmed ride, riders rate their driver and drivers rate each rider. Tap a few tags like "On time" or "Safe driver" to say why.</p>
+          <p>Average ratings show next to every name and on every profile. You can filter to drivers rated 4.5 and up, and drivers see a rider's rating before accepting.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq" id="faq" aria-labelledby="faq-title">
+      <div class="section-head"><h2 id="faq-title">Questions</h2></div>
+      <div>
+        <details><summary>Who can drive?</summary><p>UNC juniors, seniors and graduate students with a valid driver's license, their own insurance and a car in good shape. Drivers post rides they're already making.</p></details>
+        <details><summary>How much does a ride cost?</summary><p>The driver sets the price, from free up to $5 a seat. Most campus rides are about $3. You pay the driver after the ride by Venmo, Zelle or cash.</p></details>
+        <details><summary>Why add my schedule?</summary><p>Once your classes are saved, My schedule shows the rides that line up with each one, and organizers can match you with drivers who have classes at the same time.</p></details>
+        <details><summary>What if nobody is driving at my time?</summary><p>Join the waitlist for that time and drop-off. Drivers see how many riders are waiting when they create a ride.</p></details>
+        <details><summary>Who sees my profile?</summary><p>Anyone using the site sees your photo, name, year, program and bio on the rides you post or join. Your email stays with the organizers.</p></details>
+        <details><summary>Is this run by UNC?</summary><p>No. Take A Tar Heel is a student project and isn't affiliated with UNC, UNC Transportation and Parking or Chapel Hill Transit.</p></details>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div class="foot-top">
+      <span class="wordmark" style="color:var(--band-ink)">Take A <span style="color:var(--band-brand)">Tar Heel</span></span>
+      <nav class="foot-links" aria-label="Footer"><a href="#join">Join a ride</a><a href="#create">Create a ride</a><a href="#schedule">My schedule</a><a href="#survey">Survey</a><a href="#faq">FAQ</a></nav>
+    </div>
+    <p>A BUSI 200 recitation project at UNC Kenan-Flagler. Rides marked Sample are examples. Not affiliated with UNC, UNC Transportation and Parking or Chapel Hill Transit. Drive times are estimates; follow campus parking and traffic rules.</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Reference data ----------
+  var SLOTS = { MWF: [480, 545, 610, 675, 740, 805, 870, 935, 1000], TTh: [480, 570, 660, 750, 840, 930, 1020] };
+  var REPEAT_DAYS = { MWF: [1, 3, 5], TTh: [2, 4] };
+  var REPEAT_LABEL = { MWF: "Every Mon / Wed / Fri", TTh: "Every Tue / Thu" };
+  var DAY_CODES = ["M", "T", "W", "Th", "F"];
+  var DAY_NUM = { M: 1, T: 2, W: 3, Th: 4, F: 5 };
+  var DAY_NAME = { M: "Mon", T: "Tue", W: "Wed", Th: "Thu", F: "Fri" };
+  // Places on a rough grid; drive minutes between them are estimated from distance
+  var PLACES = [
+    { id: "mccoll", name: "McColl Building (Kenan-Flagler)", x: 1.2, y: 4.6 },
+    { id: "granville", name: "Granville Towers", x: 0.4, y: 0.5 },
+    { id: "franklin", name: "Franklin St & Columbia", x: 0, y: 0 },
+    { id: "cobb", name: "Cobb Deck (North Campus)", x: 2.2, y: 0.6 },
+    { id: "union", name: "Student Union", x: 1.6, y: 2.2 },
+    { id: "craige", name: "Craige Deck", x: 2.6, y: 4.1 },
+    { id: "ehaus", name: "Ehringhaus", x: 3.1, y: 4.4 },
+    { id: "hj", name: "Hinton James", x: 3.6, y: 5.2 },
+    { id: "hospitals", name: "UNC Hospitals", x: -0.6, y: 4.2 },
+    { id: "deandome", name: "Dean Smith Center", x: 3.4, y: 6.3 },
+    { id: "carrboro", name: "Carrboro (Weaver St)", x: -2.4, y: 0.4 }
+  ];
+  var placeById = {};
+  PLACES.forEach(function (p) { placeById[p.id] = p; });
+  function drive(a, b) {
+    var p = placeById[a], q = placeById[b];
+    if (!p || !q) return 7;
+    return Math.max(3, Math.round(2 + 1.15 * Math.sqrt(Math.pow(p.x - q.x, 2) + Math.pow(p.y - q.y, 2))));
+  }
+  var DRIVER_TAGS = ["On time", "Safe driver", "Friendly", "Clean car"];
+  var RIDER_TAGS = ["On time", "Friendly", "Respectful"];
+
+  var SURVEY = [
+    { k: "year", q: "What year are you?", opts: ["First-year", "Sophomore", "Junior", "Senior", "Grad student"], req: true },
+    { k: "car", q: "Do you have a car on campus?", opts: ["Yes", "No"], req: true },
+    { k: "commute", q: "How do you usually get to McColl?", opts: ["Walk", "Bus", "Drive myself", "Bike or scooter", "Uber or Lyft"], req: true },
+    { k: "late", q: "How often does getting there make you late?", opts: ["Never", "About once a month", "About once a week", "More than once a week"], req: true },
+    { k: "use", q: "How likely are you to use Take A Tar Heel?", opts: ["1", "2", "3", "4", "5"], scale: true, ends: ["Not likely", "Very likely"], req: true },
+    { k: "pay", q: "What's the most you'd pay for a ride across campus?", opts: ["Only if free", "$1–2", "$3", "$4–5", "More than $5"], req: true },
+    { k: "drive", q: "Would you drive other students?", opts: ["Yes", "Maybe", "No", "I don't have a car"] },
+    { k: "trust", q: "What would make you feel safe using it? Pick any.", opts: ["Onyen verification", "Driver ratings", "Profile photos", "Public pickup spots", "Share my trip with a friend"], multi: true }
+  ];
+
+  function smp(id, label, year, prog, bio, car, repeat, arriveBy, from, to, seats, taken, price, rating, count, accessible, note) {
+    return { id: id, sample: true, label: label, year: year, program: prog, bio: bio, car: car, repeat: repeat, arriveBy: arriveBy, from: from, to: to,
+      seats: seats, taken: taken, price: price, rating: rating, ratingCount: count, accessible: !!accessible, note: note || "" };
+  }
+  var SAMPLES = [
+    smp("s1", "Jordan M.", "Senior", "BSBA", "Morning person. Coffee in the cupholder, quiet ride.", "Gray Honda Civic", "MWF", 472, "granville", "mccoll", 3, 1, 3, 4.9, 31),
+    smp("s2", "Ava R.", "Junior", "BSBA", "Finance concentration, always 10 minutes early.", "White Jeep Wrangler", "MWF", 538, "cobb", "mccoll", 2, 0, 3, 4.7, 12),
+    smp("s3", "Priya S.", "Senior", "BSBA", "I drive past Granville every day anyway.", "Blue Toyota RAV4", "MWF", 603, "granville", "mccoll", 3, 1, 3, 5.0, 44, false, "Out front by the Granville sign."),
+    smp("s4", "Marcus T.", "Junior", "Pre-business", "", "Black Ford Escape", "MWF", 605, "franklin", "mccoll", 1, 0, 2, 4.6, 9),
+    smp("s5", "Ella K.", "Grad student", "MBA", "MBA student, happy to help anyone on crutches.", "Silver Subaru Outback", "MWF", 604, "craige", "mccoll", 2, 0, 0, 4.8, 18, true),
+    smp("s6", "Sam W.", "Senior", "BSBA", "Playlist requests welcome.", "Red Mazda 3", "MWF", 668, "union", "mccoll", 3, 2, 3, 4.4, 7),
+    smp("s7", "Luis G.", "Junior", "BSBA", "", "Gray Hyundai Elantra", "MWF", 733, "granville", "mccoll", 2, 0, 3, 4.9, 22),
+    smp("s8", "Hannah P.", "Senior", "BSBA", "Live off campus, drive in from South Campus.", "Green Kia Soul", "MWF", 734, "hj", "mccoll", 3, 1, 2, 4.8, 15, true),
+    smp("s9", "Tyler B.", "Grad student", "Master of Accounting", "", "White Honda Accord", "MWF", 799, "franklin", "mccoll", 2, 0, 4, 4.7, 26),
+    smp("s10", "Grace L.", "Junior", "BSBA", "", "Blue VW Jetta", "MWF", 864, "ehaus", "mccoll", 1, 0, 2, 5.0, 6),
+    smp("s11", "Dev P.", "Senior", "BSBA", "Big car, lots of room for bags.", "Black Honda Pilot", "MWF", 927, "cobb", "mccoll", 3, 1, 3, 4.9, 38, true),
+    smp("s12", "Rachel O.", "Junior", "BSBA", "", "White Mini Cooper", "MWF", 992, "granville", "mccoll", 2, 0, 3, 4.6, 11),
+    smp("s13", "Noah C.", "Senior", "BSBA", "8 a.m. club. I'll get you there.", "Black Toyota Camry", "TTh", 473, "carrboro", "mccoll", 3, 0, 3, 4.8, 20),
+    smp("s14", "Maya D.", "Junior", "BSBA", "", "Silver Honda CR-V", "TTh", 562, "cobb", "mccoll", 2, 0, 3, 4.9, 17, true),
+    smp("s15", "Ben H.", "Senior", "Pre-business", "", "Gray Ford Fusion", "TTh", 565, "granville", "mccoll", 3, 1, 2, 4.5, 8),
+    smp("s16", "Chloe N.", "Grad student", "MBA", "Weekend MBA, also on campus Tue/Thu.", "White Tesla Model 3", "TTh", 653, "union", "mccoll", 3, 0, 4, 5.0, 29),
+    smp("s17", "Ethan F.", "Senior", "BSBA", "", "Blue Chevy Malibu", "TTh", 742, "granville", "mccoll", 2, 1, 3, 4.7, 14),
+    smp("s18", "Zoe A.", "Junior", "BSBA", "", "Red Toyota Corolla", "TTh", 834, "franklin", "mccoll", 2, 0, 3, 4.8, 10),
+    smp("s19", "Owen J.", "Senior", "BSBA", "", "Gray Subaru Crosstrek", "TTh", 924, "craige", "mccoll", 3, 0, 2, 4.3, 5),
+    smp("s20", "Lily V.", "Junior", "BSBA", "", "Black Jeep Cherokee", "TTh", 1012, "granville", "mccoll", 2, 0, 3, 4.9, 19),
+    smp("s21", "Kayla W.", "Senior", "Another major", "Nursing student, clinical shifts at the hospital.", "White Toyota Prius", "TTh", 465, "granville", "hospitals", 3, 1, 3, 4.9, 16, false, "Clinical shift folks welcome."),
+    smp("s22", "Chris D.", "Junior", "BSBA", "", "Gray Nissan Altima", "MWF", 1080, "hj", "franklin", 4, 1, 2, 4.6, 13),
+    smp("s23", "Aaliyah B.", "Grad student", "MBA", "Game nights at the Dean Dome. Free ride.", "Blue Honda Fit", "MWF", 1110, "union", "deandome", 3, 0, 0, 4.8, 9, true)
+  ];
+
+  // ---------- State ----------
+  var S = {
+    mode: "loading", db: null, assets: null, uid: null, canWrite: null, isEditor: false, stale: false, dbError: false,
+    rides: [], requests: [], wanted: [], ratings: [], profiles: [], schedules: [], survey: [], notes: [],
+    localRides: [], localReq: {}, localRatings: {}, localSurvey: null, localProfile: null, localSchedule: null,
+    label: "", confirmRemove: null, busy: false,
+    sched: { role: "rider", home: "granville", seats: 3, email: "", classes: [] }, schedDirty: false, schedLoaded: false,
+    profDirty: false, profLoaded: false, svLoaded: false, photo: null
+  };
+
+  // ---------- Helpers ----------
+  function el(id) { return document.getElementById(id); }
+  function h(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function fmt(min) {
+    min = ((min % 1440) + 1440) % 1440;
+    var hh = Math.floor(min / 60), m = min % 60, ap = hh >= 12 ? "PM" : "AM", h12 = hh % 12 === 0 ? 12 : hh % 12;
+    return h12 + ":" + pad(m) + " " + ap;
+  }
+  function fmtShort(min) { return fmt(min).replace(/ (AM|PM)$/, ""); }
+  function toHHMM(min) { min = Math.max(0, Math.min(1439, min)); return pad(Math.floor(min / 60)) + ":" + pad(min % 60); }
+  function fromHHMM(v) { if (!v) return null; var p = String(v).split(":"); var n = Number(p[0]) * 60 + Number(p[1]); return isFinite(n) ? n : null; }
+  function ymd(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function parseYmd(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  var DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  function dateLabel(s) { var d = parseYmd(s); return DOW[d.getDay()] + ", " + MON[d.getMonth()] + " " + d.getDate(); }
+  function todayStr() { return ymd(new Date()); }
+  function first(label) { return String(label || "your driver").split(" ")[0]; }
+  function shortName(full) {
+    var parts = String(full || "").trim().split(/\s+/);
+    if (!parts[0]) return "";
+    return parts.length > 1 ? parts[0] + " " + parts[parts.length - 1].charAt(0).toUpperCase() + "." : parts[0];
+  }
+  function store(k, v) { try { localStorage.setItem("tath3:" + k, v); } catch (e) {} }
+  function recall(k) { try { return localStorage.getItem("tath3:" + k); } catch (e) { return null; } }
+  function money(n) { return n ? "$" + n : "Free"; }
+  function placeName(id) { return placeById[id] ? placeById[id].name : "Campus"; }
+  function shortPlace(id) { return placeName(id).replace(/ \(.*\)$/, ""); }
+  function dayList(codes) { return DAY_CODES.filter(function (c) { return codes.indexOf(c) > -1; }).join(" "); }
+  function pct(n, d) { return d ? Math.round(100 * n / d) : 0; }
+
+  var toastTimer;
+  function toast(msg) { var t = el("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 3800); }
+  function canPost() { return !!(S.db && S.uid && S.canWrite !== false); }
+
+  // ---------- When ----------
+  function whenInfo(v) {
+    v = String(v || "");
+    if (v.indexOf("r:") === 0) return { type: "repeat", days: v.slice(2) };
+    var date = v.slice(2) || todayStr();
+    return { type: "date", date: date, wd: parseYmd(date).getDay() };
+  }
+  function whenKey(v) { return String(v).replace(":", "-"); }
+  function rideDays(r) { return r.repeat === "once" ? [parseYmd(r.date).getDay()] : (REPEAT_DAYS[r.repeat] || []); }
+  function rideWhenLabel(r) { return r.repeat === "once" ? dateLabel(r.date) : REPEAT_LABEL[r.repeat]; }
+  function rideMatchesWhen(r, w) {
+    if (w.type === "repeat") return r.repeat === w.days;
+    if (r.repeat === "once") return r.date === w.date;
+    return (REPEAT_DAYS[r.repeat] || []).indexOf(w.wd) > -1;
+  }
+  function validRide(r) {
+    return r && placeById[r.from] && placeById[r.to] && typeof r.arriveBy === "number" && typeof r.seats === "number" &&
+      (r.repeat === "MWF" || r.repeat === "TTh" || (r.repeat === "once" && typeof r.date === "string" && r.date >= todayStr()));
+  }
+  function arriveAt(r) { return r.arriveBy; }
+  function departAt(r) { return r.arriveBy - drive(r.from, r.to); }
+  function fillWhen(sel) {
+    sel.innerHTML = "";
+    var d = new Date();
+    for (var i = 0; i < 7; i++) {
+      var o = document.createElement("option"), s = ymd(d);
+      o.value = "d:" + s;
+      o.textContent = i === 0 ? "Today · " + dateLabel(s) : i === 1 ? "Tomorrow · " + dateLabel(s) : dateLabel(s);
+      sel.appendChild(o); d.setDate(d.getDate() + 1);
+    }
+    ["MWF", "TTh"].forEach(function (k) { var o = document.createElement("option"); o.value = "r:" + k; o.textContent = REPEAT_LABEL[k]; sel.appendChild(o); });
+  }
+  function hasOption(sel, v) { return [].some.call(sel.options, function (o) { return o.value === v; }); }
+  function fillPlaces(sel) { PLACES.forEach(function (p) { var o = document.createElement("option"); o.value = p.id; o.textContent = p.name; sel.appendChild(o); }); }
+  function nextClassFor(whenVal) {
+    var w = whenInfo(whenVal), now = new Date(), mins = now.getHours() * 60 + now.getMinutes();
+    var days = w.type === "repeat" ? w.days : (w.wd === 2 || w.wd === 4 ? "TTh" : "MWF");
+    if (w.type === "date" && w.date === todayStr()) {
+      var n = SLOTS[days].filter(function (s) { return s > mins + 10; })[0];
+      if (n != null) return n;
+    }
+    return days === "MWF" ? 610 : 570;
+  }
+  // The soonest date (within a week) that falls on one of these class days
+  function nextDateFor(codes) {
+    var d = new Date();
+    for (var i = 0; i < 7; i++) { if (codes.some(function (c) { return DAY_NUM[c] === d.getDay(); })) return ymd(d); d.setDate(d.getDate() + 1); }
+    return todayStr();
+  }
+  function whenForCodes(codes, forCreate) {
+    var k = dayList(codes);
+    if (forCreate && k === "M W F") return "r:MWF";
+    if (forCreate && k === "T Th") return "r:TTh";
+    return "d:" + nextDateFor(codes);
+  }
+
+  // ---------- Form wiring ----------
+  var bFrom = el("b-from"), bTo = el("b-to"), bWhen = el("b-when"), bTime = el("b-time");
+  var jFrom = el("j-from"), jTo = el("j-to"), jWhen = el("j-when"), jTime = el("j-time");
+  var jAccess = el("j-access"), jRated = el("j-rated"), jSamples = el("j-samples");
+  var cFrom = el("c-from"), cTo = el("c-to"), cWhen = el("c-when"), cTime = el("c-time");
+  var cSeats = el("c-seats"), cPrice = el("c-price"), cCar = el("c-car"), cNote = el("c-note"), cAccess = el("c-access");
+  [bFrom, bTo, jFrom, jTo, cFrom, cTo, el("s-home")].forEach(fillPlaces);
+  [bWhen, jWhen, cWhen].forEach(fillWhen);
+
+  (function initDefaults() {
+    var now = new Date(), wd = now.getDay(), start = new Date(now);
+    if (wd === 6) start.setDate(start.getDate() + 2);
+    if (wd === 0) start.setDate(start.getDate() + 1);
+    var whenVal = "d:" + ymd(start);
+    if (!hasOption(jWhen, whenVal)) whenVal = "r:MWF";
+    var from = placeById[recall("from")] ? recall("from") : "granville";
+    var to = placeById[recall("to")] ? recall("to") : "mccoll";
+    var t = toHHMM(nextClassFor(whenVal));
+    [bFrom, jFrom, cFrom].forEach(function (s) { s.value = from; });
+    [bTo, jTo, cTo].forEach(function (s) { s.value = to; });
+    bWhen.value = jWhen.value = whenVal; cWhen.value = "r:MWF";
+    bTime.value = jTime.value = t;
+    cTime.value = toHHMM(nextClassFor("r:MWF") - 7);
+    jSamples.checked = recall("samples") !== "off";
+    var nm = recall("name"); if (nm) S.label = nm;
+    S.sched.home = from;
+    S.sched.classes = [{ id: "c1", name: "BUSI 200", to: "mccoll", days: ["M", "W", "F"], start: 610 }];
+  })();
+
+  // ---------- Data helpers ----------
+  function allRides() { var list = S.rides.filter(validRide).concat(S.localRides); if (jSamples.checked) list = list.concat(SAMPLES); return list; }
+  function findRide(id) { return S.rides.concat(S.localRides, SAMPLES).filter(function (r) { return r.id === id; })[0]; }
+  function ridersFor(r) { return S.requests.filter(function (q) { return q.rideId === r.id && q.status !== "declined"; }); }
+  function seatsLeft(r) {
+    if (r.sample || r.local) { var m = S.localReq[r.id] && S.localReq[r.id].status !== "declined" ? 1 : 0; return r.seats - (r.taken || 0) - m; }
+    return r.seats - ridersFor(r).length;
+  }
+  function myRequestFor(r) {
+    if (r.sample || r.local) return S.localReq[r.id] || null;
+    if (!S.uid) return null;
+    return S.requests.filter(function (q) { return q.rideId === r.id && q.rider === S.uid; })[0] || null;
+  }
+  function isMine(r) { return !!(r.local || (S.uid && r.driver === S.uid)); }
+  function ratingOf(uid) {
+    var list = S.ratings.filter(function (x) { return x.target === uid && typeof x.stars === "number"; });
+    if (!list.length) return null;
+    return { avg: list.reduce(function (a, x) { return a + x.stars; }, 0) / list.length, n: list.length };
+  }
+  function driverRating(r) { return r.sample ? { avg: r.rating, n: r.ratingCount } : r.local ? null : ratingOf(r.driver); }
+  function wantMatchesRide(w, r) { return r.to === w.to && rideMatchesWhen(r, whenInfo(w.when)) && r.arriveBy <= w.arriveBy && r.arriveBy >= w.arriveBy - 25; }
+  function ratingKey(rideId, rater, target) { return rideId + "--" + rater + "--" + target; }
+  function myRating(rideId, target, isSample) {
+    if (isSample || !S.uid) return S.localRatings[rideId + ":" + target] || null;
+    return S.ratings.filter(function (x) { return x.rideId === rideId && x.rater === S.uid && x.target === target; })[0] || null;
+  }
+  function profileOf(uid) {
+    if (!uid) return null;
+    if (uid === S.uid && S.localProfile) return S.localProfile;
+    return S.profiles.filter(function (p) { return p.id === uid; })[0] || null;
+  }
+  function myProfile() { return S.localProfile || profileOf(S.uid); }
+  function displayName(uid, fallback) { var p = profileOf(uid); return (p && p.label) || fallback || "A Tar Heel"; }
+  function rideClassMatch(r, c) {
+    if (r.to !== c.to) return false;
+    var days = rideDays(r);
+    if (!c.days.some(function (code) { return days.indexOf(DAY_NUM[code]) > -1; })) return false;
+    return r.arriveBy <= c.start && r.arriveBy >= c.start - 25;
+  }
+
+  // ---------- Components ----------
+  function hue(s) { var x = 0; s = String(s || ""); for (var i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) % 360; return x; }
+  function initials(name) { var p = String(name || "?").trim().split(/\s+/); return ((p[0] || "?").charAt(0) + (p[1] ? p[1].charAt(0) : "")).toUpperCase(); }
+  function avatarEl(name, photoId, size, key) {
+    var a = h("span", "av" + (size ? " " + size : ""));
+    a.setAttribute("aria-hidden", "true");
+    var fallback = function () { a.innerHTML = ""; a.textContent = initials(name); a.style.background = "hsl(" + hue(key || name) + " 45% 38%)"; };
+    if (photoId) {
+      var img = new Image(); img.alt = ""; img.src = String(photoId).indexOf("blob:") === 0 || String(photoId).indexOf("data:") === 0 ? photoId : "/_blob/" + photoId;
+      img.onerror = fallback; a.appendChild(img);
+    } else fallback();
+    return a;
+  }
+  function starSvg() { var ns = "http://www.w3.org/2000/svg", s = document.createElementNS(ns, "svg"); s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("aria-hidden", "true"); var u = document.createElementNS(ns, "use"); u.setAttribute("href", "#i-star"); s.appendChild(u); return s; }
+  function ratingEl(rt, newText) {
+    var span = h("span", "rating");
+    if (!rt) { span.appendChild(h("span", "n", newText || "New")); return span; }
+    span.appendChild(h("span", "s", "★")); span.appendChild(document.createTextNode(rt.avg.toFixed(1))); span.appendChild(h("span", "n", "(" + rt.n + ")"));
+    span.setAttribute("aria-label", "Rated " + rt.avg.toFixed(1) + " out of 5 from " + rt.n + (rt.n === 1 ? " rating" : " ratings"));
+    return span;
+  }
+  function seatIcons(total, left) { var w = h("span", "seats"); w.setAttribute("aria-hidden", "true"); for (var i = 0; i < total; i++) w.appendChild(h("i", i < left ? "" : "taken")); return w; }
+  function sbtn(text, cls, fn, aria) { var b = h("button", "sbtn" + (cls ? " " + cls : ""), text); b.type = "button"; if (aria) b.setAttribute("aria-label", aria); b.addEventListener("click", fn); return b; }
+  function rateWidget(opts) {
+    var box = h("div", "rate");
+    box.appendChild(h("span", "q", opts.question));
+    var stars = h("div", "stars-in"); stars.setAttribute("role", "group"); stars.setAttribute("aria-label", opts.question);
+    var cur = opts.existing ? opts.existing.stars : 0;
+    var tags = opts.existing && opts.existing.tags ? opts.existing.tags.slice() : [];
+    for (var i = 1; i <= 5; i++) (function (n) {
+      var b = h("button", "star-btn" + (n <= cur ? " on" : "")); b.type = "button";
+      b.setAttribute("aria-label", n + (n === 1 ? " star" : " stars")); b.setAttribute("aria-pressed", n === cur ? "true" : "false");
+      b.appendChild(starSvg()); b.addEventListener("click", function () { opts.onSave(n, tags); }); stars.appendChild(b);
+    })(i);
+    box.appendChild(stars);
+    if (cur) {
+      var chips = h("div", "chips");
+      opts.tags.forEach(function (t) {
+        var c = h("button", "chip", t); c.type = "button"; c.setAttribute("aria-pressed", tags.indexOf(t) > -1 ? "true" : "false");
+        c.addEventListener("click", function () { var i2 = tags.indexOf(t); if (i2 > -1) tags.splice(i2, 1); else tags.push(t); opts.onSave(cur, tags); });
+        chips.appendChild(c);
+      });
+      box.appendChild(chips);
+    }
+    return box;
+  }
+
+  // ---------- Ride option row ----------
+  function rideDriver(r) {
+    if (r.sample) return { label: r.label, photo: null, year: r.year, program: r.program, bio: r.bio, key: r.id };
+    if (r.local || r.preview) { var mp = myProfile() || {}; return { label: S.label || "You", photo: S.photo || mp.photo, year: mp.year, program: mp.program, bio: mp.bio, key: S.uid || "me" }; }
+    var p = profileOf(r.driver) || {};
+    return { label: p.label || r.label || "A Tar Heel", photo: p.photo, year: p.year, program: p.program, bio: p.bio, key: r.driver };
+  }
+  function rowEl(r, opts) {
+    opts = opts || {};
+    var left = opts.preview ? r.seats : seatsLeft(r);
+    var drv = rideDriver(r);
+    var row = h("div", "opt");
+    var t = h("div", "t tnum", fmtShort(departAt(r)));
+    t.appendChild(h("small", null, "leaves · arrives " + fmtShort(arriveAt(r))));
+    row.appendChild(t);
+
+    var who = h("div", "who");
+    var name = h("div", "name");
+    name.appendChild(avatarEl(drv.label, drv.photo, "", drv.key));
+    name.appendChild(document.createTextNode(drv.label));
+    name.appendChild(ratingEl(opts.preview ? (S.uid ? ratingOf(S.uid) : null) : driverRating(r), "New driver"));
+    if (r.sample) name.appendChild(h("span", "tag sample", "Sample"));
+    if (r.local) name.appendChild(h("span", "tag sample", "Only on your screen"));
+    if (!opts.preview && isMine(r)) name.appendChild(h("span", "tag mine", "Your ride"));
+    if (opts.matchFrom && r.from === opts.matchFrom) name.appendChild(h("span", "tag near", "Your pickup"));
+    if (r.accessible) name.appendChild(h("span", "tag access", "Mobility aid OK"));
+    who.appendChild(name);
+    var sub = [drv.year, drv.program].filter(Boolean).join(" · ");
+    if (sub || drv.bio) who.appendChild(h("span", "bio", (sub ? sub + (drv.bio ? " · " : "") : "") + (drv.bio || "")));
+    var d = h("span", "detail");
+    d.appendChild(seatIcons(r.seats, Math.max(0, left)));
+    d.appendChild(document.createTextNode(" " + Math.max(0, left) + (left === 1 ? " seat" : " seats") + " left · " +
+      shortPlace(r.from) + " → " + shortPlace(r.to) + " · " + (r.car || "Car not listed") + " · " + rideWhenLabel(r)));
+    who.appendChild(d);
+    if (r.note) who.appendChild(h("span", "dnote", "“" + r.note + "”"));
+    row.appendChild(who);
+
+    var right = h("div", "right");
+    var pr = h("div", "price tnum", money(r.price)); if (r.price) pr.appendChild(h("small", null, " /seat"));
+    right.appendChild(pr);
+    if (opts.preview) { var pb = h("button", "btn primary sm", "Join ride"); pb.type = "button"; pb.disabled = true; right.appendChild(pb); row.appendChild(right); return row; }
+    var mine = myRequestFor(r);
+    if (isMine(r)) { var mb = h("button", "btn soft sm", "Manage"); mb.type = "button"; mb.addEventListener("click", function () { go("mine"); }); right.appendChild(mb); }
+    else if (mine) {
+      var cb = h("button", "btn soft sm", mine.status === "declined" ? "Dismiss" : "Cancel"); cb.type = "button";
+      cb.setAttribute("aria-label", "Cancel your request with " + drv.label); cb.addEventListener("click", function () { cancelRequest(r, mine); }); right.appendChild(cb);
+    } else {
+      var rb = h("button", "btn primary sm"); rb.type = "button";
+      if (left < 1) { rb.textContent = "Full"; rb.disabled = true; } else rb.textContent = "Join ride";
+      rb.setAttribute("aria-label", "Join " + drv.label + "'s ride"); rb.addEventListener("click", function () { requestSeat(r); }); right.appendChild(rb);
+    }
+    row.appendChild(right);
+    if (mine) {
+      var n;
+      if (mine.status === "confirmed") n = h("p", "note good", "Confirmed. Meet " + first(drv.label) + " at " + placeName(r.from) + " by " + fmt(departAt(r)) + ". Look for a " + (r.car || "car") + "." + (r.price ? " Pay " + money(r.price) + " after the ride." : ""));
+      else if (mine.status === "declined") n = h("p", "note bad", first(drv.label) + " couldn't fit you this time. Try another ride or join the waitlist.");
+      else n = h("p", "note wait", "Requested. Waiting for " + first(drv.label) + " to accept.");
+      if (r.sample) n.textContent += " (Sample ride: nothing was sent.)";
+      row.appendChild(n);
+    }
+    return row;
+  }
+
+  // ---------- Render: join ----------
+  function renderJoin() {
+    var from = jFrom.value, to = jTo.value, whenVal = jWhen.value, w = whenInfo(whenVal), need = fromHHMM(jTime.value);
+    if (need == null) need = nextClassFor(whenVal);
+    function fits(r) {
+      if (r.to !== to || !rideMatchesWhen(r, w)) return false;
+      if (r.arriveBy > need || r.arriveBy < need - 25) return false;
+      if (jAccess.checked && !r.accessible) return false;
+      if (jRated.checked) { var rt = driverRating(r); if (!rt || rt.avg < 4.5) return false; }
+      return true;
+    }
+    var list = allRides().filter(fits).sort(function (a, b) {
+      var sa = a.from === from ? 0 : 1, sb = b.from === from ? 0 : 1; if (sa !== sb) return sa - sb;
+      var ra = a.sample ? 1 : 0, rb = b.sample ? 1 : 0; if (ra !== rb) return ra - rb;
+      return b.arriveBy - a.arriveBy;
+    });
+    el("opt-title").textContent = "Rides to " + placeName(to);
+    var sub = el("opt-sub");
+    sub.textContent = (w.type === "repeat" ? REPEAT_LABEL[w.days] : dateLabel(w.date)) + " · there by " + fmt(need);
+    var waiting = S.wanted.filter(function (x) { return x.when === whenVal && x.to === to && Math.abs(x.arriveBy - need) <= 25; });
+    if (waiting.length) sub.appendChild(h("span", "demand", " · " + waiting.length + (waiting.length === 1 ? " rider" : " riders") + " waiting"));
+
+    var rows = el("rows"); rows.innerHTML = "";
+    if (S.mode === "loading" && !list.length) {
+      var lb = h("div", "empty"); lb.appendChild(h("p", "big", "Loading rides")); lb.appendChild(h("p", null, "Live rides from other students show up here in a moment.")); rows.appendChild(lb);
+    } else if (!list.length) {
+      var box = h("div", "empty");
+      box.appendChild(h("p", "big", "No rides at that time yet"));
+      var alt = allRides().filter(function (r) { return r.to === to && rideMatchesWhen(r, w) && (!jAccess.checked || r.accessible); })
+        .sort(function (a, b) { return Math.abs(a.arriveBy - need) - Math.abs(b.arriveBy - need); })[0];
+      box.appendChild(h("p", null, (alt ? "The closest ride to " + shortPlace(to) + " that day arrives at " + fmt(alt.arriveBy) + ". " : "") + "Join the waitlist so drivers know you need a seat, or create a ride if you drive."));
+      var acts = h("div", "row-actions");
+      if (alt) { var ab = h("button", "btn primary sm", "Show the " + fmt(alt.arriveBy) + " ride"); ab.type = "button"; ab.addEventListener("click", function () { jTime.value = toHHMM(alt.arriveBy); renderJoin(); }); acts.appendChild(ab); }
+      var cb = h("button", "btn soft sm", "Create this ride"); cb.type = "button";
+      cb.addEventListener("click", function () { copyTo("c", from, to, whenVal, need - 7); renderCreate(); go("create"); });
+      acts.appendChild(cb); box.appendChild(acts); rows.appendChild(box);
+    } else list.forEach(function (r) { rows.appendChild(rowEl(r, { matchFrom: from })); });
+
+    var foot = el("opt-foot"), wt = el("wait-text"), wb = el("wait-btn");
+    if (S.mode === "live" || S.mode === "view") {
+      foot.hidden = false;
+      var on = S.uid && waiting.some(function (x) { return x.rider === S.uid; });
+      wt.textContent = on ? "You're on the waitlist for this time. Drivers see it when they create a ride." : "No seat that works? Let drivers know you need one.";
+      wb.textContent = on ? "Leave waitlist" : "Join the waitlist";
+      wb.disabled = !canPost(); wb.dataset.on = on ? "1" : "";
+    } else foot.hidden = true;
+  }
+
+  // ---------- Render: create ----------
+  function draft() {
+    var w = whenInfo(cWhen.value);
+    return { id: "draft", preview: true, label: S.label || "You", car: cCar.value.trim(), note: cNote.value.trim(),
+      repeat: w.type === "repeat" ? w.days : "once", date: w.type === "date" ? w.date : null,
+      arriveBy: fromHHMM(cTime.value) != null ? fromHHMM(cTime.value) : 603, from: cFrom.value, to: cTo.value,
+      seats: Number(cSeats.value), price: Number(cPrice.value), accessible: cAccess.checked };
+  }
+  function renderCreate() {
+    var r = draft();
+    var pv = el("c-preview"); pv.innerHTML = ""; pv.appendChild(rowEl(r, { preview: true }));
+    var plan = el("c-plan"); plan.innerHTML = "";
+    [[fmt(departAt(r)), "Leave " + placeName(r.from) + " with your riders"],
+     [fmt(arriveAt(r)), "Arrive at " + placeName(r.to) + ", about " + drive(r.from, r.to) + " min later"],
+     [money(r.price * r.seats), "If every seat fills" + (r.price ? " (" + money(r.price) + " × " + r.seats + ")" : "")]].forEach(function (p) {
+      var li = h("li"); li.appendChild(h("b", null, p[0])); li.appendChild(h("span", null, p[1])); plan.appendChild(li);
+    });
+    var dl = el("c-demand"); dl.innerHTML = "";
+    if (S.mode === "live" || S.mode === "view") {
+      var w = S.wanted.filter(function (x) { return wantMatchesRide(x, r); });
+      var sm = S.isEditor ? S.schedules.filter(function (s) { return s.id !== S.uid && s.role !== "driver" && (s.classes || []).some(function (c) { return rideClassMatch(r, c); }); }).length : 0;
+      if (w.length || sm) {
+        dl.appendChild(h("strong", null, (w.length + sm) + (w.length + sm === 1 ? " rider needs" : " riders need") + " a ride like this"));
+        dl.appendChild(document.createTextNode(" (" + w.length + " on the waitlist" + (S.isEditor ? ", " + sm + " from saved schedules" : "") + ")."));
+      } else dl.textContent = "Nobody is on the waitlist for this trip yet.";
+    }
+    el("c-submit").textContent = canPost() ? "Post my ride" : "Try it on my screen";
+  }
+
+  // ---------- Schedule ----------
+  function schedFromDoc(d) {
+    return { role: d.role || "rider", home: placeById[d.home] ? d.home : "granville", seats: d.seats || 3, email: d.email || "",
+      classes: (d.classes || []).map(function (c, i) { return { id: c.id || ("c" + i), name: c.name || "", to: placeById[c.to] ? c.to : "mccoll", days: (c.days || []).slice(), start: typeof c.start === "number" ? c.start : 610 }; }) };
+  }
+  function buildSchedForm() {
+    var s = S.sched;
+    [].forEach.call(el("s-role").querySelectorAll("button"), function (b) { b.setAttribute("aria-pressed", b.dataset.v === s.role ? "true" : "false"); });
+    el("s-home").value = s.home; el("s-seats").value = String(s.seats); el("s-email").value = s.email;
+    el("s-seats-box").hidden = s.role === "rider";
+    var wrap = el("s-classes"); wrap.innerHTML = "";
+    s.classes.forEach(function (c, idx) {
+      var row = h("div", "class-row");
+      var f1 = h("div", "fieldbox cname"); var l1 = h("label", null, "Class"); l1.htmlFor = "sc-name-" + c.id; var i1 = h("input"); i1.type = "text"; i1.id = l1.htmlFor; i1.placeholder = "BUSI 200"; i1.maxLength = 30; i1.value = c.name;
+      i1.addEventListener("input", function () { c.name = i1.value; dirtySched(); }); f1.appendChild(l1); f1.appendChild(i1);
+      var f2 = h("div", "fieldbox cplace"); var l2 = h("label", null, "Building"); l2.htmlFor = "sc-to-" + c.id; var i2 = h("select"); i2.id = l2.htmlFor; fillPlaces(i2); i2.value = c.to;
+      i2.addEventListener("change", function () { c.to = i2.value; dirtySched(); }); f2.appendChild(l2); f2.appendChild(i2);
+      var f3 = h("div", "fieldbox"); var l3 = h("label", null, "Starts"); l3.htmlFor = "sc-start-" + c.id; var i3 = h("input"); i3.type = "time"; i3.step = 300; i3.id = l3.htmlFor; i3.value = toHHMM(c.start);
+      i3.addEventListener("change", function () { var v = fromHHMM(i3.value); if (v != null) { c.start = v; dirtySched(); } }); f3.appendChild(l3); f3.appendChild(i3);
+      var rm = h("button", "icon-btn", "Remove"); rm.type = "button"; rm.setAttribute("aria-label", "Remove " + (c.name || "this class"));
+      rm.addEventListener("click", function () { s.classes.splice(idx, 1); dirtySched(); buildSchedForm(); });
+      var dw = h("div", "days-wrap"); var dl = h("span", "lab", "Days"); dw.appendChild(dl);
+      var days = h("div", "days"); days.setAttribute("role", "group"); days.setAttribute("aria-label", "Days for " + (c.name || "this class"));
+      DAY_CODES.forEach(function (code) {
+        var lab = h("label", "day"); var cb = h("input"); cb.type = "checkbox"; cb.id = "sc-d-" + c.id + "-" + code; cb.checked = c.days.indexOf(code) > -1;
+        cb.setAttribute("aria-label", DAY_NAME[code]);
+        cb.addEventListener("change", function () { var i = c.days.indexOf(code); if (cb.checked && i < 0) c.days.push(code); if (!cb.checked && i > -1) c.days.splice(i, 1); dirtySched(); });
+        lab.appendChild(cb); lab.appendChild(h("span", null, code)); days.appendChild(lab);
+      });
+      dw.appendChild(days);
+      row.appendChild(f1); row.appendChild(f2); row.appendChild(f3); row.appendChild(rm); row.appendChild(dw);
+      wrap.appendChild(row);
+    });
+    if (!s.classes.length) wrap.appendChild(h("p", "hint", "No classes yet. Add the ones you need a ride to."));
+    renderWeek();
+  }
+  function dirtySched() { S.schedDirty = true; el("s-ok").hidden = true; renderWeek(); }
+  function renderWeek() {
+    var wk = el("s-week"); wk.innerHTML = "";
+    var s = S.sched, list = s.classes.filter(function (c) { return c.days.length; });
+    if (!list.length) { var b = h("div", "blank"); b.appendChild(h("p", null, "Add a class with at least one day and you'll see the rides that line up with it here.")); wk.appendChild(b); return; }
+    list.slice().sort(function (a, b) { return DAY_NUM[a.days[0]] - DAY_NUM[b.days[0]] || a.start - b.start; }).forEach(function (c) {
+      var box = h("div", "wk");
+      var info = h("div"); info.appendChild(h("b", null, (c.name || "Class") + " · " + fmt(c.start)));
+      info.appendChild(h("span", "meta", dayList(c.days) + " · " + shortPlace(c.to)));
+      box.appendChild(info);
+      var matches = allRides().filter(function (r) { return !isMine(r) && rideClassMatch(r, c); });
+      box.appendChild(h("span", "status " + (matches.length ? "confirmed" : "requested"), matches.length ? matches.length + (matches.length === 1 ? " ride" : " rides") : "No rides yet"));
+      var acts = h("div", "row-actions");
+      if (s.role !== "driver") acts.appendChild(sbtn("See rides", matches.length ? "go" : "", function () { copyTo("j", s.home, c.to, whenForCodes(c.days), c.start); renderJoin(); go("join"); }));
+      if (s.role !== "rider") acts.appendChild(sbtn("Create a ride for this class", s.role === "driver" ? "go" : "", function () {
+        copyTo("c", s.home, c.to, whenForCodes(c.days, true), c.start - 7); cSeats.value = String(s.seats); renderCreate(); go("create");
+      }));
+      box.appendChild(acts);
+      wk.appendChild(box);
+    });
+  }
+  el("s-role").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    S.sched.role = b.dataset.v; dirtySched();
+    [].forEach.call(this.querySelectorAll("button"), function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+    el("s-seats-box").hidden = S.sched.role === "rider";
+  });
+  el("s-home").addEventListener("change", function () { S.sched.home = this.value; dirtySched(); });
+  el("s-seats").addEventListener("change", function () { S.sched.seats = Number(this.value); dirtySched(); });
+  el("s-email").addEventListener("input", function () { S.sched.email = this.value.trim(); S.schedDirty = true; });
+  el("s-add").addEventListener("click", function () {
+    var last = S.sched.classes[S.sched.classes.length - 1];
+    S.sched.classes.push({ id: "c" + Date.now(), name: "", to: "mccoll", days: last ? last.days.slice() : ["T", "Th"], start: last ? last.start + 65 : 570 });
+    dirtySched(); buildSchedForm();
+    var inputs = el("s-classes").querySelectorAll(".cname input"); if (inputs.length) inputs[inputs.length - 1].focus();
+  });
+  el("sched-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var err = el("s-err"); err.hidden = true;
+    var s = S.sched;
+    var bad = s.classes.filter(function (c) { return !c.days.length; })[0];
+    if (!s.classes.length) { err.textContent = "Add at least one class."; err.hidden = false; return; }
+    if (bad) { err.textContent = "Pick at least one day for " + (bad.name || "each class") + "."; err.hidden = false; return; }
+    if (s.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.email)) { err.textContent = "That email doesn't look right. Use your full address, like onyen@unc.edu."; err.hidden = false; return; }
+    var doc = { role: s.role, home: s.home, seats: s.seats, email: s.email, classes: s.classes.map(function (c) { return { id: c.id, name: c.name.trim(), to: c.to, days: dayList(c.days).split(" "), start: c.start }; }), updatedAt: Date.now() };
+    if (!canPost()) { S.localSchedule = doc; S.schedDirty = false; el("s-ok").textContent = "Saved on your screen only."; el("s-ok").hidden = false; renderWeek(); return; }
+    if (!needName()) return;
+    doc.label = S.label;
+    write(function () { return S.db.doc("schedules/" + S.uid).set(doc); }, "Schedule saved.").then(function (ok) {
+      if (ok) { S.schedDirty = false; el("s-ok").textContent = "Saved. Organizers can now match you."; el("s-ok").hidden = false; }
+    });
+  });
+
+  // ---------- Profile ----------
+  function fillProfileForm(p) {
+    el("p-name").value = (p && p.label) || S.label || "";
+    el("p-year").value = (p && p.year) || ""; el("p-program").value = (p && p.program) || ""; el("p-bio").value = (p && p.bio) || "";
+    S.photo = (p && p.photo) || null;
+    el("p-bio-count").textContent = el("p-bio").value.length + " / 160";
+  }
+  function renderProfile() {
+    var nm = el("p-name").value.trim() || S.label || "Your name";
+    var av = el("p-av"); av.innerHTML = ""; av.appendChild(avatarEl(nm, S.photo, "lg", S.uid || "me"));
+    el("p-remove").hidden = !S.photo;
+    var card = el("p-card"); card.innerHTML = "";
+    card.appendChild(avatarEl(nm, S.photo, "lg", S.uid || "me"));
+    card.appendChild(h("span", "nm", nm));
+    var sub = [el("p-year").value, el("p-program").value].filter(Boolean).join(" · ");
+    card.appendChild(h("span", "sub", sub || "Year · Program"));
+    card.appendChild(ratingEl(S.uid ? ratingOf(S.uid) : null, "No ratings yet"));
+    card.appendChild(h("p", "bio", el("p-bio").value.trim() || "Your bio shows up here and on every ride you post or join."));
+    var chip = el("me-chip-av"); chip.innerHTML = ""; chip.appendChild(avatarEl(nm, S.photo, "", S.uid || "me"));
+    el("me-chip-name").textContent = S.label ? S.label : "Set up your profile";
+    el("p-upload-btn").firstChild.textContent = S.photo ? "Change photo" : "Upload photo";
+  }
+  ["p-name", "p-year", "p-program", "p-bio"].forEach(function (id) {
+    el(id).addEventListener(id === "p-year" || id === "p-program" ? "change" : "input", function () {
+      S.profDirty = true; el("p-ok").hidden = true;
+      if (id === "p-bio") el("p-bio-count").textContent = el("p-bio").value.length + " / 160";
+      renderProfile();
+    });
+  });
+  // Shrink a photo to a 320px square JPEG before upload
+  function squareJpeg(file) {
+    return new Promise(function (res, rej) {
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        var sz = 320, c = document.createElement("canvas"); c.width = c.height = sz;
+        var s = Math.min(img.naturalWidth, img.naturalHeight), sx = (img.naturalWidth - s) / 2, sy = (img.naturalHeight - s) / 2;
+        c.getContext("2d").drawImage(img, sx, sy, s, s, 0, 0, sz, sz);
+        URL.revokeObjectURL(url);
+        c.toBlob(function (b) { b ? res(b) : rej(new Error("encode")); }, "image/jpeg", 0.86);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); rej(new Error("decode")); };
+      img.src = url;
+    });
+  }
+  el("p-file").addEventListener("change", function () {
+    var f = this.files && this.files[0]; this.value = "";
+    if (!f) return;
+    var err = el("p-err"); err.hidden = true;
+    if (!/^image\/(png|jpeg|webp|gif)$/.test(f.type)) { err.textContent = "Use a PNG, JPG, WebP or GIF photo."; err.hidden = false; return; }
+    squareJpeg(f).then(function (blob) {
+      if (!S.assets) {
+        S.photo = URL.createObjectURL(blob); S.profDirty = true; renderProfile();
+        toast(canPost() ? "Photo uploads aren't available for your account here. It shows on your screen only." : "Photo shows on your screen only in this preview.");
+        return;
+      }
+      el("p-photo-hint").textContent = "Uploading…";
+      return S.assets.upload(blob, { type: "image/jpeg" }).then(function (r) {
+        S.photo = r.id; S.profDirty = true; renderProfile();
+        el("p-photo-hint").textContent = "Photo uploaded. Save your profile to show it on your rides.";
+      });
+    }).catch(function (e) {
+      var code = e && e.code;
+      el("p-photo-hint").textContent = "A clear photo of your face helps your driver or riders find you at pickup.";
+      err.textContent = code === "too_large" ? "That photo is too big. Try a smaller one." : code === "quota_or_state" ? "Photo storage is full. Ask an organizer to clear space." : code === "rate_limited" ? "Too many uploads at once. Wait a moment and try again." : "That photo couldn't be uploaded. Try a different one.";
+      err.hidden = false;
+    });
+  });
+  el("p-remove").addEventListener("click", function () { S.photo = null; S.profDirty = true; el("p-ok").hidden = true; renderProfile(); });
+  el("prof-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var err = el("p-err"); err.hidden = true;
+    var nm = el("p-name").value.trim();
+    if (!nm) { err.textContent = "Add your name so drivers and riders know who you are."; err.hidden = false; el("p-name").focus(); return; }
+    S.label = nm; store("name", nm);
+    var prev = myProfile(), oldPhoto = prev && prev.photo;
+    var doc = { label: nm, year: el("p-year").value, program: el("p-program").value, bio: el("p-bio").value.trim().slice(0, 160), photo: S.photo && S.photo.indexOf("blob:") !== 0 ? S.photo : null, updatedAt: Date.now() };
+    if (!canPost()) { S.localProfile = Object.assign({ id: "me" }, doc, { photo: S.photo }); S.profDirty = false; el("p-ok").textContent = "Saved on your screen only."; el("p-ok").hidden = false; renderAll(); return; }
+    write(function () { return S.db.doc("profiles/" + S.uid).set(doc); }, "Profile saved.").then(function (ok) {
+      if (!ok) return;
+      S.profDirty = false; el("p-ok").textContent = "Saved. Your photo and bio now show on your rides."; el("p-ok").hidden = false;
+      if (oldPhoto && oldPhoto !== doc.photo && S.assets) S.assets.delete(oldPhoto).catch(function () {});
+      renderAll();
+    });
+  });
+
+  // ---------- Render: mine ----------
+  function card(title, meta) { var c = h("div", "card"); c.appendChild(h("h4", null, title)); if (meta) c.appendChild(h("p", "meta", meta)); return c; }
+  function renderMine() {
+    var root = el("mine"); root.innerHTML = ""; var badge = 0;
+    var driving = S.rides.filter(function (r) { return validRide(r) && S.uid && r.driver === S.uid; }).concat(S.localRides);
+    var riding = [];
+    if (S.uid) S.requests.forEach(function (q) { if (q.rider === S.uid) riding.push({ q: q, ride: findRide(q.rideId) }); });
+    Object.keys(S.localReq).forEach(function (id) { riding.push({ q: S.localReq[id], ride: findRide(id) }); });
+    var waits = S.uid ? S.wanted.filter(function (x) { return x.rider === S.uid; }) : [];
+    if (S.mode === "preview") { var pn = h("div", "blank"); pn.appendChild(h("p", null, "You're looking at a preview. What you join, post or rate here stays on your screen and is gone when you close the page.")); root.appendChild(pn); }
+
+    var g1 = h("div", "mine-group"); g1.appendChild(h("h3", null, "Driving"));
+    if (!driving.length) {
+      var e1 = h("div", "blank"); e1.appendChild(h("p", null, "You haven't created a ride. If you already drive this way, your empty seats could get someone to class on time."));
+      e1.appendChild(sbtn("Create a ride", "go", function () { go("create"); })); g1.appendChild(e1);
+    } else {
+      var cs = h("div", "cards");
+      driving.forEach(function (r) {
+        var c = card(shortPlace(r.from) + " → " + shortPlace(r.to), rideWhenLabel(r) + " · leave " + fmt(departAt(r)) + " · arrive " + fmt(arriveAt(r)) + " · " + money(r.price) + (r.price ? " a seat" : ""));
+        var reqs = r.local ? [] : S.requests.filter(function (q) { return q.rideId === r.id; });
+        var conf = reqs.filter(function (q) { return q.status === "confirmed"; }).length;
+        var pend = reqs.filter(function (q) { return q.status === "requested"; });
+        badge += pend.length;
+        c.appendChild(h("p", "meta", conf + " of " + r.seats + " seats confirmed" + (pend.length ? " · " + pend.length + " waiting on you" : "")));
+        var wl = S.wanted.filter(function (x) { return x.rider !== S.uid && wantMatchesRide(x, r); });
+        if (wl.length) c.appendChild(h("p", "meta", wl.length + " more " + (wl.length === 1 ? "rider is" : "riders are") + " on the waitlist for this trip"));
+        var ul = h("ul", "riders");
+        var shown = reqs.filter(function (q) { return q.status !== "declined"; });
+        if (!shown.length) ul.appendChild(h("li", "none", r.local ? "This ride is only on your screen." : "No requests yet. They'll show up here."));
+        shown.forEach(function (q) {
+          var p = profileOf(q.rider) || {}, nm = p.label || q.label || "A rider";
+          var li = h("li"), top = h("div", "top-line"), wl2 = h("span", "who-l");
+          wl2.appendChild(avatarEl(nm, p.photo, "md", q.rider)); wl2.appendChild(document.createTextNode(nm)); wl2.appendChild(ratingEl(ratingOf(q.rider), "New rider"));
+          top.appendChild(wl2);
+          var m = h("div", "mini");
+          if (q.status === "requested") {
+            var full = conf >= r.seats;
+            var acc = sbtn(full ? "Car full" : "Accept", full ? "" : "go", function () { setStatus(q, "confirmed"); }, "Accept " + nm); acc.disabled = full; m.appendChild(acc);
+            m.appendChild(sbtn("Decline", "", function () { setStatus(q, "declined"); }, "Decline " + nm));
+          } else {
+            m.appendChild(h("span", "status confirmed", "Confirmed"));
+            m.appendChild(sbtn("Remove", "", function () { setStatus(q, "declined"); }, "Remove " + nm));
+          }
+          top.appendChild(m); li.appendChild(top);
+          var bits = [p.year, p.program].filter(Boolean).join(" · ");
+          if (bits || p.bio) li.appendChild(h("span", "meta", (bits ? bits + (p.bio ? " · " : "") : "") + (p.bio || "")));
+          if (q.status === "confirmed") li.appendChild(rateWidget({ question: "Rate " + first(nm) + " as a rider", existing: myRating(r.id, q.rider), tags: RIDER_TAGS, onSave: function (stars, tags) { saveRating(r.id, q.rider, "rider", stars, tags); } }));
+          ul.appendChild(li);
+        });
+        c.appendChild(ul);
+        var rm = h("div", "mini");
+        if (S.confirmRemove === r.id) {
+          rm.appendChild(sbtn("Yes, remove this ride", "warn", function () { removeRide(r); }));
+          rm.appendChild(sbtn("Keep it", "", function () { S.confirmRemove = null; renderMine(); }));
+        } else rm.appendChild(sbtn("Remove ride", "warn", function () { S.confirmRemove = r.id; renderMine(); }));
+        c.appendChild(rm); cs.appendChild(c);
+      });
+      g1.appendChild(cs);
+    }
+
+    var g2 = h("div", "mine-group"); g2.appendChild(h("h3", null, "Riding"));
+    if (!riding.length && !waits.length) {
+      var e2 = h("div", "blank"); e2.appendChild(h("p", null, "You haven't joined a ride yet. Find a driver heading where you need to go."));
+      e2.appendChild(sbtn("Join a ride", "go", function () { go("join"); })); g2.appendChild(e2);
+    } else {
+      var cs2 = h("div", "cards");
+      riding.forEach(function (it) {
+        var r = it.ride, q = it.q;
+        if (!r || (!r.sample && !r.local && !validRide(r))) {
+          var gone = card("Ride removed", "The driver took this ride off the board."); gone.appendChild(h("span", "status gone", "No longer running"));
+          gone.appendChild(sbtn("Dismiss", "", function () { cancelRequest({ id: q.rideId }, q); })); cs2.appendChild(gone); return;
+        }
+        var drv = rideDriver(r);
+        var c = card(shortPlace(r.from) + " → " + shortPlace(r.to), rideWhenLabel(r) + " · " + (r.car || "Car not listed"));
+        var who = h("div", "who-l"); who.appendChild(avatarEl(drv.label, drv.photo, "md", drv.key)); who.appendChild(document.createTextNode(drv.label + (r.sample ? " (sample)" : ""))); who.appendChild(ratingEl(driverRating(r), "New driver"));
+        c.appendChild(who);
+        var st = q.status || "requested";
+        c.appendChild(h("span", "status " + st, st === "confirmed" ? "Confirmed" : st === "declined" ? "Car full" : "Waiting for driver"));
+        if (st === "confirmed") c.appendChild(h("p", null, "Meet at " + placeName(r.from) + " by " + fmt(departAt(r)) + ". You'll arrive around " + fmt(arriveAt(r)) + "." + (r.price ? " Pay " + money(r.price) + " after the ride." : "")));
+        else if (st === "declined") c.appendChild(h("p", null, "This driver couldn't fit you. Look for another ride or join the waitlist."));
+        else c.appendChild(h("p", null, "Pickup at " + placeName(r.from) + ", leaving " + fmt(departAt(r)) + ", once " + first(drv.label) + " accepts."));
+        if (st === "confirmed") {
+          var target = r.sample || r.local ? r.id : r.driver;
+          c.appendChild(rateWidget({ question: "Rate " + first(drv.label) + "'s driving", existing: myRating(r.id, target, r.sample || r.local), tags: DRIVER_TAGS, onSave: function (stars, tags) { saveRating(r.id, target, "driver", stars, tags, r); } }));
+        }
+        var m = h("div", "mini"); m.appendChild(sbtn(st === "declined" ? "Dismiss" : "Cancel", "", function () { cancelRequest(r, q); })); c.appendChild(m);
+        cs2.appendChild(c);
+      });
+      waits.forEach(function (x) {
+        var match = allRides().filter(function (r) { return !r.sample && !isMine(r) && wantMatchesRide(x, r); }).length;
+        var wi = whenInfo(x.when);
+        var c = card(shortPlace(x.from) + " → " + shortPlace(x.to), (wi.type === "repeat" ? REPEAT_LABEL[wi.days] : dateLabel(wi.date)) + " · there by " + fmt(x.arriveBy));
+        c.appendChild(h("span", "status waitlist", "On the waitlist"));
+        c.appendChild(h("p", null, match ? match + (match === 1 ? " ride is" : " rides are") + " now posted for this trip." : "No driver has posted this trip yet. You'll see it here when one does."));
+        var m = h("div", "mini");
+        if (match) m.appendChild(sbtn("See rides", "go", function () { copyTo("j", x.from, x.to, x.when, x.arriveBy); renderJoin(); go("join"); }));
+        m.appendChild(sbtn("Leave waitlist", "", function () { write(function () { return S.db.doc("wanted/" + x.id).delete(); }, "You left the waitlist."); }));
+        c.appendChild(m); cs2.appendChild(c);
+      });
+      g2.appendChild(cs2);
+    }
+    root.appendChild(g1); root.appendChild(g2);
+    var mc = el("mine-count"); mc.textContent = String(badge); mc.hidden = badge === 0;
+  }
+
+  // ---------- Survey ----------
+  (function buildSurvey() {
+    var wrap = el("sv-questions");
+    SURVEY.forEach(function (q) {
+      var fs = h("fieldset"); fs.appendChild(h("legend", null, q.q + (q.req ? "" : " (optional)")));
+      var box = h("div", q.scale ? "scale5" : "opts");
+      q.opts.forEach(function (o, i) {
+        var lab = h("label", "opt-pill"); var inp = h("input"); inp.type = q.multi ? "checkbox" : "radio"; inp.name = "sv-" + q.k; inp.value = o; inp.id = "sv-" + q.k + "-" + i;
+        if (q.scale) inp.setAttribute("aria-label", o + " out of 5");
+        lab.appendChild(inp); lab.appendChild(h("span", null, o)); box.appendChild(lab);
+      });
+      fs.appendChild(box);
+      if (q.ends) { var ends = h("div", "scale-ends"); ends.appendChild(h("span", null, q.ends[0])); ends.appendChild(h("span", null, q.ends[1])); fs.appendChild(ends); }
+      wrap.appendChild(fs);
+    });
+  })();
+  function readSurvey() {
+    var a = {};
+    SURVEY.forEach(function (q) {
+      var sel = [].filter.call(document.getElementsByName("sv-" + q.k), function (i) { return i.checked; }).map(function (i) { return i.value; });
+      a[q.k] = q.multi ? sel : (sel[0] || "");
+    });
+    return a;
+  }
+  function fillSurvey(a) {
+    SURVEY.forEach(function (q) {
+      [].forEach.call(document.getElementsByName("sv-" + q.k), function (i) { i.checked = q.multi ? (a[q.k] || []).indexOf(i.value) > -1 : a[q.k] === i.value; });
+    });
+  }
+  function surveyRows() {
+    var rows = S.survey.slice();
+    if (S.localSurvey && !S.survey.some(function (x) { return x.id === S.uid; })) rows.push(S.localSurvey);
+    return rows;
+  }
+  function renderSurvey() {
+    var rows = surveyRows(), n = rows.length;
+    el("sv-count").textContent = n ? "Live results · " + n + (n === 1 ? " response" : " responses") : "Live results";
+    var tiles = el("sv-tiles"); tiles.innerHTML = "";
+    var bars = el("sv-bars"); bars.innerHTML = "";
+    if (!n) {
+      var b = h("div", "blank"); b.appendChild(h("p", null, S.mode === "loading" ? "Loading results…" : "No responses yet. Be the first. Results appear here the moment someone submits."));
+      bars.appendChild(b); return;
+    }
+    function count(k, v) { return rows.filter(function (r) { return Array.isArray(r[k]) ? r[k].indexOf(v) > -1 : r[k] === v; }).length; }
+    var lateWeekly = count("late", "About once a week") + count("late", "More than once a week");
+    var useVals = rows.map(function (r) { return Number(r.use); }).filter(function (x) { return x >= 1; });
+    var avgUse = useVals.length ? useVals.reduce(function (a, x) { return a + x; }, 0) / useVals.length : 0;
+    var pay3 = count("pay", "$3") + count("pay", "$4–5") + count("pay", "More than $5");
+    var car = count("car", "Yes");
+    [[pct(lateWeekly, n) + "%", "late at least once a week"], [avgUse ? avgUse.toFixed(1) + " / 5" : "–", "likely to use it"], [pct(pay3, n) + "%", "would pay $3 or more"], [pct(car, n) + "%", "have a car on campus"]].forEach(function (t) {
+      var d = h("div", "stat"); d.appendChild(h("b", null, t[0])); d.appendChild(h("span", null, t[1])); tiles.appendChild(d);
+    });
+    SURVEY.forEach(function (q) {
+      if (q.k === "year") return;
+      var box = h("div", "res-q"); box.appendChild(h("h4", null, q.q.replace(" Pick any.", "")));
+      var hb = h("div", "hbars");
+      var answered = q.multi ? n : rows.filter(function (r) { return r[q.k]; }).length;
+      q.opts.forEach(function (o) {
+        var c = count(q.k, o), p = pct(c, answered);
+        var row = h("div", "hbar"); row.title = o + ": " + c + " of " + answered + " (" + p + "%)";
+        row.appendChild(h("span", null, q.scale ? o + (o === "1" ? " · " + q.ends[0] : o === "5" ? " · " + q.ends[1] : "") : o));
+        var trk = h("span", "trk"); var f = h("span", "fill"); f.style.width = p + "%"; f.style.display = "block"; trk.appendChild(f); row.appendChild(trk);
+        row.appendChild(h("span", "v", c + " · " + p + "%"));
+        hb.appendChild(row);
+      });
+      box.appendChild(hb); bars.appendChild(box);
+    });
+    var yr = h("p", "hint", "By year: " + SURVEY[0].opts.map(function (o) { return o + " " + count("year", o); }).join(" · "));
+    bars.appendChild(yr);
+  }
+  el("sv-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var err = el("sv-err"); err.hidden = true;
+    var a = readSurvey();
+    var missing = SURVEY.filter(function (q) { return q.req && !a[q.k]; })[0];
+    if (missing) { err.textContent = "Answer “" + missing.q + "” to submit."; err.hidden = false; return; }
+    var comment = el("sv-comment").value.trim();
+    a.updatedAt = Date.now();
+    if (!canPost()) {
+      S.localSurvey = Object.assign({ id: "local" }, a); renderSurvey();
+      el("sv-ok").textContent = "Thanks. Your answers are counted on your screen only."; el("sv-ok").hidden = false; return;
+    }
+    var had = S.survey.some(function (x) { return x.id === S.uid; });
+    write(function () {
+      return S.db.doc("survey/" + S.uid).set(a).then(function () {
+        if (comment) return S.db.doc("surveyNotes/" + S.uid).set({ text: comment.slice(0, 400), updatedAt: Date.now() });
+      });
+    }, had ? "Answers updated." : "Thanks for answering.").then(function (ok) {
+      if (ok) { el("sv-ok").textContent = "Thanks. Your answers are in the results."; el("sv-ok").hidden = false; el("sv-submit").textContent = "Update my answers"; }
+    });
+  });
+
+  // ---------- Organizer ----------
+  function classMatches(c, ownerId) {
+    var hits = [];
+    S.schedules.forEach(function (d) {
+      if (d.id === ownerId || d.role === "rider") return;
+      (d.classes || []).forEach(function (dc) {
+        var day = (c.days || []).some(function (x) { return (dc.days || []).indexOf(x) > -1; });
+        if (day && dc.to === c.to && Math.abs(dc.start - c.start) <= 20) {
+          var me = S.schedules.filter(function (x) { return x.id === ownerId; })[0];
+          var t = displayName(d.id, d.label) + (me && me.home === d.home ? " (same pickup)" : "");
+          if (hits.indexOf(t) < 0) hits.push(t);
+        }
+      });
+    });
+    var rides = S.rides.filter(function (r) { return validRide(r) && r.driver !== ownerId && rideClassMatch(r, c); });
+    rides.forEach(function (r) { var t = displayName(r.driver, r.label) + "'s posted ride"; if (hits.indexOf(t) < 0) hits.push(t); });
+    return hits;
+  }
+  function renderOrganizer() {
+    if (!S.isEditor) return;
+    var sch = S.schedules, riders = sch.filter(function (s) { return s.role !== "driver"; }), drivers = sch.filter(function (s) { return s.role !== "rider"; });
+    var matched = 0, totalRiderClasses = 0;
+    riders.forEach(function (s) { (s.classes || []).forEach(function (c) { totalRiderClasses++; if (classMatches(c, s.id).length) matched++; }); });
+    var conf = S.requests.filter(function (q) { return q.status === "confirmed"; }).length;
+    var stats = el("o-stats"); stats.innerHTML = "";
+    [[S.profiles.length, "Profiles"], [riders.length, "Riders with schedules"], [drivers.length, "Drivers with schedules"], [matched + " / " + totalRiderClasses, "Rider classes with a possible driver"],
+     [S.rides.filter(validRide).length, "Rides posted"], [conf + " / " + S.requests.length, "Seat requests confirmed"], [S.wanted.length, "On the waitlist"], [S.survey.length, "Survey responses"]].forEach(function (t) {
+      var d = h("div", "stat"); d.appendChild(h("b", null, String(t[0]))); d.appendChild(h("span", null, t[1])); stats.appendChild(d);
+    });
+    var tb = el("o-rows"); tb.innerHTML = "";
+    if (!sch.length) { var tr0 = h("tr"); var td0 = h("td", null, "No schedules saved yet. Share the site and they'll appear here as people save them."); td0.colSpan = 5; tr0.appendChild(td0); tb.appendChild(tr0); }
+    sch.slice().sort(function (a, b) { return (b.updatedAt || 0) - (a.updatedAt || 0); }).forEach(function (s) {
+      var p = profileOf(s.id) || {}, nm = p.label || s.label || "Someone";
+      var tr = h("tr");
+      var td1 = h("td"), cp = h("div", "cell-person"); cp.appendChild(avatarEl(nm, p.photo, "", s.id));
+      var nmw = h("div"); nmw.appendChild(h("strong", null, nm)); nmw.appendChild(h("div", "sub", [p.year, p.program].filter(Boolean).join(" · ") || "No profile details"));
+      cp.appendChild(nmw); td1.appendChild(cp); tr.appendChild(td1);
+      tr.appendChild(h("td", null, s.role === "both" ? "Rider + driver" : s.role === "driver" ? "Driver · " + (s.seats || 0) + " seats" : "Rider"));
+      var td3 = h("td"); td3.appendChild(h("div", null, s.email || "No email")); td3.appendChild(h("div", "sub", "Starts at " + shortPlace(s.home))); tr.appendChild(td3);
+      var td4 = h("td"), td5 = h("td");
+      (s.classes || []).forEach(function (c) {
+        var cl = h("div"); cl.appendChild(document.createTextNode((c.name || "Class") + " → " + shortPlace(c.to))); cl.appendChild(h("div", "sub", dayList(c.days || []) + " · " + fmt(c.start)));
+        td4.appendChild(cl);
+        if (s.role === "driver") { if (!td5.childNodes.length) td5.appendChild(h("span", "miss", "Driver")); }
+        else { var hits = classMatches(c, s.id); td5.appendChild(h("div", hits.length ? "hit" : "miss", ((s.classes.length > 1 ? (c.name || "Class") + ": " : "") + (hits.length ? hits.join(", ") : "No driver yet")))); }
+      });
+      tr.appendChild(td4); tr.appendChild(td5); tb.appendChild(tr);
+    });
+    var cm = el("o-comments"); cm.innerHTML = "";
+    if (!S.notes.length) cm.appendChild(h("p", "hint", "No comments yet."));
+    S.notes.slice().sort(function (a, b) { return (b.updatedAt || 0) - (a.updatedAt || 0); }).forEach(function (n) {
+      var bq = h("blockquote", null, n.text || ""); bq.appendChild(h("cite", null, displayName(n.id, "Anonymous") + (n.updatedAt ? " · " + new Date(n.updatedAt).toLocaleDateString() : ""))); cm.appendChild(bq);
+    });
+  }
+  function csvCell(v) { v = v == null ? "" : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+  function schedulesCsv() {
+    var out = [["role", "name", "email", "year", "program", "starts_at", "seats", "class", "building", "days", "start", "possible_matches"].join(",")];
+    S.schedules.forEach(function (s) {
+      var p = profileOf(s.id) || {};
+      (s.classes && s.classes.length ? s.classes : [{}]).forEach(function (c) {
+        out.push([s.role, p.label || s.label, s.email, p.year, p.program, shortPlace(s.home), s.role === "rider" ? "" : s.seats, c.name, c.to ? shortPlace(c.to) : "", dayList(c.days || []), c.start != null ? fmt(c.start) : "", s.role === "driver" || !c.to ? "" : classMatches(c, s.id).join("; ")].map(csvCell).join(","));
+      });
+    });
+    return out.join("\n");
+  }
+  function surveyCsv() {
+    var out = [SURVEY.map(function (q) { return q.k; }).concat(["comment", "submitted"]).join(",")];
+    S.survey.forEach(function (r) {
+      var note = S.notes.filter(function (n) { return n.id === r.id; })[0];
+      out.push(SURVEY.map(function (q) { return Array.isArray(r[q.k]) ? r[q.k].join("; ") : r[q.k]; }).concat([note ? note.text : "", r.updatedAt ? new Date(r.updatedAt).toISOString() : ""]).map(csvCell).join(","));
+    });
+    return out.join("\n");
+  }
+  function copyCsv(text, what) {
+    var status = el("o-csv-status"), fb = el("o-csv-fallback");
+    var showFallback = function () { fb.hidden = false; fb.value = text; fb.focus(); fb.select(); status.textContent = "Copy didn't work here. The " + what + " CSV is selected below; copy it with Ctrl+C or Cmd+C."; };
+    try {
+      navigator.clipboard.writeText(text).then(function () { fb.hidden = true; status.textContent = "Copied the " + what + " CSV. Paste it into Google Sheets or Excel."; }, showFallback);
+    } catch (e) { showFallback(); }
+  }
+  el("o-csv-s").addEventListener("click", function () { copyCsv(schedulesCsv(), "schedules"); });
+  el("o-csv-v").addEventListener("click", function () { copyCsv(surveyCsv(), "survey"); });
+
+  // ---------- Render: status ----------
+  function renderStatus() {
+    var pill = el("status-pill"), real = S.rides.filter(validRide).length;
+    pill.dataset.state = S.mode;
+    pill.textContent = { loading: S.stale ? "Can't reach the board yet" : "Connecting…", live: "Live · " + real + (real === 1 ? " ride" : " rides"), view: "Live · view only", preview: "Preview · sample rides" }[S.mode];
+    var note = el("access-note"), t = el("access-title"), b = el("access-body");
+    note.hidden = false;
+    if (S.mode === "preview") { t.textContent = "You're seeing a preview with sample rides."; b.textContent = "Sign in to claude.ai and open the link you were sent to see live rides. Anything you try here stays on your screen."; }
+    else if (S.mode === "view") { t.textContent = "You can see live rides and survey results, but you can't post, join, rate or answer on this board."; b.textContent = "Ask whoever shared this page to invite you as an editor. Sample rides still work so you can try it."; }
+    else if (S.mode === "loading" && S.stale) { t.textContent = "The live board isn't answering yet."; b.textContent = "Sample rides are shown in the meantime. The board fills in by itself once it connects."; }
+    else if (S.dbError) { t.textContent = "The live board stopped updating."; b.textContent = "Reload the page to reconnect. What you see may be out of date."; }
+    else note.hidden = true;
+    el("tab-organizer").hidden = !S.isEditor;
+  }
+  function renderAll() { renderStatus(); renderJoin(); renderCreate(); renderWeek(); renderMine(); renderProfile(); renderSurvey(); renderOrganizer(); }
+
+  // ---------- Writes ----------
+  function needName() {
+    if (S.label) return true;
+    go("profile"); var err = el("p-err"); err.textContent = "Add your name first so drivers and riders know who you are."; err.hidden = false;
+    setTimeout(function () { el("p-name").focus(); }, 50);
+    return false;
+  }
+  function write(fn, okMsg) {
+    if (S.busy) return Promise.resolve(false);
+    S.busy = true;
+    var attempt = function (retry) {
+      return Promise.resolve().then(fn).then(function () { S.busy = false; if (okMsg) toast(okMsg); return true; }, function (e) {
+        var code = e && e.code;
+        if (code === "unavailable" && retry) return new Promise(function (res) { setTimeout(res, 600 + Math.random() * 600); }).then(function () { return attempt(false); });
+        S.busy = false;
+        if (code === "invalid_argument" || code === "not_granted") { S.canWrite = false; S.mode = S.db ? "view" : "preview"; toast("This board is view only for you. Ask the person who shared it to invite you as an editor."); }
+        else if (code === "quota_exceeded") toast("The board is full. Ask an organizer to clear out old rides.");
+        else if (code === "revoked") toast("Your access to this board changed. Reload the page.");
+        else toast("That didn't save. Check your connection and try again.");
+        renderAll(); return false;
+      });
+    };
+    return attempt(true);
+  }
+  function reqDoc(rideId, uid) { return "requests/" + rideId + "--" + uid; }
+  function requestSeat(r) {
+    if (r.sample || r.local) {
+      S.localReq[r.id] = { rideId: r.id, status: "requested" }; renderAll();
+      toast("Seat requested on a sample ride. Nothing was sent.");
+      setTimeout(function () { if (S.localReq[r.id] && S.localReq[r.id].status === "requested") { S.localReq[r.id].status = "confirmed"; renderAll(); toast(first(r.label) + " accepted (sample). Rate the ride in My rides."); } }, 2200);
+      return;
+    }
+    if (!canPost()) { toast("This board is view only for you."); return; }
+    if (!needName()) return;
+    write(function () { return S.db.doc(reqDoc(r.id, S.uid)).set({ rideId: r.id, rider: S.uid, driver: r.driver || null, label: S.label, status: "requested", createdAt: Date.now() }); },
+      "Seat requested. " + first(rideDriver(r).label) + " sees it in My rides.");
+  }
+  function cancelRequest(r, q) {
+    if (!q.rider) { delete S.localReq[r.id]; renderAll(); return; }
+    write(function () { return S.db.doc(reqDoc(q.rideId, q.rider)).delete(); }, "Request canceled.");
+  }
+  function setStatus(q, status) {
+    var nm = displayName(q.rider, q.label);
+    write(function () { return S.db.doc(reqDoc(q.rideId, q.rider)).update({ status: status }); }, status === "confirmed" ? nm + " is confirmed." : "You let " + nm + " know your car is full.");
+  }
+  function saveRating(rideId, target, role, stars, tags, ride) {
+    if ((ride && (ride.sample || ride.local)) || !S.uid || !S.db) {
+      S.localRatings[rideId + ":" + target] = { stars: stars, tags: tags.slice() }; renderMine();
+      toast("Thanks. You gave " + stars + (stars === 1 ? " star" : " stars") + (ride && ride.sample ? " (sample ride, not saved)." : "."));
+      return;
+    }
+    write(function () { return S.db.doc("ratings/" + ratingKey(rideId, S.uid, target)).set({ rideId: rideId, rater: S.uid, target: target, role: role, stars: stars, tags: tags.slice(0, 4), createdAt: Date.now() }); },
+      "Rating saved: " + stars + (stars === 1 ? " star." : " stars."));
+  }
+  function removeRide(r) {
+    S.confirmRemove = null;
+    if (r.local) { S.localRides = S.localRides.filter(function (x) { return x !== r; }); delete S.localReq[r.id]; renderAll(); toast("Ride removed."); return; }
+    var reqs = S.requests.filter(function (q) { return q.rideId === r.id; });
+    write(function () {
+      return S.db.doc("rides/" + r.id).delete().then(function () {
+        return reqs.reduce(function (p, q) { return p.then(function () { return S.db.doc(reqDoc(q.rideId, q.rider)).delete(); }); }, Promise.resolve());
+      });
+    }, "Ride removed.");
+  }
+  el("wait-btn").addEventListener("click", function () {
+    if (!canPost() || !needName()) return;
+    var whenVal = jWhen.value, need = fromHHMM(jTime.value), to = jTo.value;
+    if (this.dataset.on) {
+      var mineW = S.wanted.filter(function (x) { return x.rider === S.uid && x.when === whenVal && x.to === to && Math.abs(x.arriveBy - need) <= 25; });
+      write(function () { return mineW.reduce(function (p, x) { return p.then(function () { return S.db.doc("wanted/" + x.id).delete(); }); }, Promise.resolve()); }, "You left the waitlist.");
+    } else {
+      var id = whenKey(whenVal) + "-" + need + "-" + to + "--" + S.uid;
+      write(function () { return S.db.doc("wanted/" + id).set({ rider: S.uid, label: S.label, when: whenVal, arriveBy: need, from: jFrom.value, to: to, createdAt: Date.now() }); }, "You're on the waitlist. Drivers creating this trip will see it.");
+    }
+  });
+  el("create-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var err = el("c-err"); err.hidden = true;
+    var r = draft(); delete r.preview;
+    if (r.from === r.to) { err.textContent = "Pick a drop-off that's different from your pickup."; err.hidden = false; cTo.focus(); return; }
+    if (!r.car) { err.textContent = "Add your car so riders can spot you at pickup."; err.hidden = false; cCar.focus(); return; }
+    var after = function () { copyTo("j", r.from, r.to, cWhen.value, r.arriveBy); cNote.value = ""; renderAll(); go("join"); };
+    if (!canPost()) { r.id = "local" + Date.now(); r.local = true; S.localRides.push(r); toast("Your ride is on your screen only. Nothing was posted."); after(); return; }
+    if (!needName()) return;
+    var dup = S.rides.filter(function (x) { return x.driver === S.uid && x.from === r.from && x.to === r.to && x.repeat === r.repeat && x.date === r.date && x.arriveBy === r.arriveBy; })[0];
+    if (dup) { err.textContent = "You already posted this exact ride. Remove it in My rides to change it."; err.hidden = false; return; }
+    write(function () {
+      return S.db.collection("rides").doc().set({ driver: S.uid, label: S.label, car: r.car, note: r.note, repeat: r.repeat, date: r.date,
+        arriveBy: r.arriveBy, from: r.from, to: r.to, seats: r.seats, price: r.price, accessible: r.accessible, createdAt: Date.now() });
+    }, "Your ride is posted. Leave " + placeName(r.from) + " at " + fmt(departAt(r)) + ".").then(function (ok) { if (ok) after(); });
+  });
+
+  // ---------- Inputs ----------
+  function copyTo(prefix, from, to, whenVal, mins) {
+    el(prefix + "-from").value = from; el(prefix + "-to").value = to;
+    var sel = el(prefix + "-when"); if (hasOption(sel, whenVal)) sel.value = whenVal;
+    if (mins != null) el(prefix + "-time").value = toHHMM(mins);
+  }
+  el("book").addEventListener("submit", function (e) {
+    e.preventDefault();
+    copyTo("j", bFrom.value, bTo.value, bWhen.value, fromHHMM(bTime.value));
+    store("from", bFrom.value); store("to", bTo.value); renderJoin(); go("join");
+  });
+  el("b-create").addEventListener("click", function () { var t = fromHHMM(bTime.value); copyTo("c", bFrom.value, bTo.value, bWhen.value, t != null ? t - 7 : null); renderCreate(); go("create"); });
+  [jFrom, jTo, jWhen, jTime, jAccess, jRated].forEach(function (n) { n.addEventListener("change", function () { if (n === jFrom) store("from", jFrom.value); if (n === jTo) store("to", jTo.value); renderJoin(); }); });
+  jSamples.addEventListener("change", function () { store("samples", jSamples.checked ? "on" : "off"); renderAll(); });
+  [cFrom, cTo, cWhen, cTime, cSeats, cPrice, cAccess].forEach(function (n) { n.addEventListener("change", renderCreate); });
+  [cCar, cNote].forEach(function (n) { n.addEventListener("input", renderCreate); });
+
+  function calc() {
+    var s = +el("k-seats").value, p = +el("k-price").value, t = +el("k-trips").value;
+    el("k-seats-o").textContent = s; el("k-price-o").textContent = "$" + p; el("k-trips-o").textContent = t;
+    el("k-week").textContent = "$" + (s * p * t); el("k-sem").textContent = "$" + (s * p * t * 15);
+  }
+  ["k-seats", "k-price", "k-trips"].forEach(function (id) { el(id).addEventListener("input", calc); });
+  calc();
+
+  // ---------- Tabs + hash routing ----------
+  var TABS = ["join", "create", "schedule", "mine", "profile", "organizer"];
+  function select(which) {
+    if (which === "organizer" && !S.isEditor) which = "join";
+    TABS.forEach(function (k) { var on = k === which; el("tab-" + k).setAttribute("aria-selected", on ? "true" : "false"); el("tab-" + k).tabIndex = on ? 0 : -1; el("panel-" + k).hidden = !on; });
+  }
+  var scrollNext = true;
+  function go(which, opts) {
+    scrollNext = !(opts && opts.noScroll);
+    if (location.hash === "#" + which) { select(which); if (scrollNext) el("app").scrollIntoView({ block: "start" }); }
+    else location.hash = which;
+  }
+  window.addEventListener("hashchange", function () {
+    var k = location.hash.slice(1);
+    if (TABS.indexOf(k) < 0) return;
+    select(k); if (scrollNext) el("app").scrollIntoView({ block: "start" }); scrollNext = true;
+  });
+  TABS.forEach(function (k, i) {
+    var t = el("tab-" + k);
+    t.addEventListener("click", function () { go(k, { noScroll: true }); });
+    t.addEventListener("keydown", function (e) {
+      var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0; if (!d) return;
+      e.preventDefault();
+      var vis = TABS.filter(function (x) { return !el("tab-" + x).hidden; }), j = vis.indexOf(k);
+      var n = vis[(j + d + vis.length) % vis.length]; go(n, { noScroll: true }); el("tab-" + n).focus();
+    });
+  });
+  function routeInitial() { var k = location.hash.slice(1); select(TABS.indexOf(k) > -1 ? k : "join"); if (TABS.indexOf(k) > -1) setTimeout(function () { el("app").scrollIntoView({ block: "start" }); }, 60); }
+  routeInitial();
+
+  // ---------- Live data ----------
+  function rows(snap) { return snap.docs.map(function (d) { var o = Object.assign({}, d.data()); o.id = d.id; return o; }); }
+  function onMineLoaded() {
+    var mp = profileOf(S.uid);
+    if (mp && !S.profDirty) { fillProfileForm(mp); if (mp.label) { S.label = mp.label; store("name", mp.label); } }
+    var ms = S.schedules.filter(function (x) { return x.id === S.uid; })[0];
+    if (ms && !S.schedDirty && !S.schedLoaded) { S.sched = schedFromDoc(ms); S.schedLoaded = true; buildSchedForm(); }
+    var sv = S.survey.filter(function (x) { return x.id === S.uid; })[0];
+    if (sv && !S.svLoaded) { S.svLoaded = true; fillSurvey(sv); el("sv-submit").textContent = "Update my answers"; }
+  }
+  function subscribe() {
+    var names = ["rides", "requests", "wanted", "ratings", "profiles", "schedules", "survey"], got = {};
+    if (S.isEditor) names.push("surveyNotes");
+    var timer = setTimeout(function () { if (S.mode === "loading") { S.stale = true; renderAll(); } }, 10000);
+    function fail(e) {
+      clearTimeout(timer); S.dbError = true; S.stale = false;
+      if (S.mode === "loading") S.mode = (e && e.code === "revoked") ? "preview" : (canPost() ? "live" : "view");
+      renderAll();
+    }
+    names.forEach(function (n) {
+      S.db.collection(n).onSnapshot(function (snap) {
+        S[n === "surveyNotes" ? "notes" : n] = rows(snap);
+        if (!snap.metadata.fromCache) got[n] = true;
+        if (names.every(function (k) { return got[k]; }) && S.mode === "loading") { clearTimeout(timer); S.stale = false; S.mode = canPost() ? "live" : "view"; }
+        onMineLoaded();
+        renderAll();
+      }, n === "surveyNotes" ? function () {} : fail);
+    });
+  }
+  function boot() {
+    fillProfileForm(null); buildSchedForm(); renderAll();
+    if (!window.claude || typeof window.claude.use !== "function") { S.mode = "preview"; renderAll(); return; }
+    Promise.all([window.claude.use("db"), window.claude.use("user"), window.claude.use("assets")]).then(function (res) {
+      var db = res[0], user = res[1];
+      S.assets = res[2] || null;
+      var who = user ? Promise.all([user.id(), user.me(), user.can("data.write"), user.canEdit()]) : Promise.resolve([null, null, null, false]);
+      return who.then(function (w) {
+        S.uid = w[0]; S.canWrite = w[2] === false ? false : w[2]; S.isEditor = !!w[3];
+        if (!S.label && w[1] && w[1].name) { S.label = shortName(w[1].name); el("p-name").value = S.label; }
+        if (!db) { S.mode = "preview"; renderAll(); return; }
+        if (!S.uid) S.canWrite = false;
+        S.db = db; subscribe();
+        if (location.hash === "#organizer") select("organizer");
+      });
+    }).catch(function () { S.mode = "preview"; renderAll(); });
+  }
+  boot();
+})();
+</script>

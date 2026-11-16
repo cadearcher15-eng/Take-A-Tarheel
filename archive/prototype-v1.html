@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Take a Tar Heel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a campus transit board. Hero races the walk against the ride on a 15 minute passing period; the app below is a departure board of rides to McColl. */
+:root {
+  --paper: #F3F6F9;
+  --surface: #FFFFFF;
+  --ink: #13294B;
+  --muted: #56657A;
+  --line: #D5DEE8;
+  --accent: #4B9CD3;
+  --accent-ink: #0B3B5E;
+  --late: #C9790A;
+  --ok: #24824F;
+  --board: #13294B;
+  --board-ink: #EAF2FA;
+  --font-display: "Big Shoulders Display", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0C1626;
+    --surface: #132238;
+    --ink: #E6EEF6;
+    --muted: #9DB0C6;
+    --line: #24395A;
+    --accent: #7BB8E3;
+    --accent-ink: #0C1626;
+    --late: #F0AE45;
+    --ok: #5CC48A;
+    --board: #08101C;
+    --board-ink: #EAF2FA;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0C1626;
+  --surface: #132238;
+  --ink: #E6EEF6;
+  --muted: #9DB0C6;
+  --line: #24395A;
+  --accent: #7BB8E3;
+  --accent-ink: #0C1626;
+  --late: #F0AE45;
+  --ok: #5CC48A;
+  --board: #08101C;
+  --board-ink: #EAF2FA;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.5;
+}
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1; letter-spacing: 0.01em; }
+p { margin: 0; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* Top bar */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 0; }
+.brand { font-family: var(--font-display); font-weight: 900; font-size: 26px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink); text-decoration: none; }
+.brand span { color: var(--accent); }
+.demo-pill { font-size: 13px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; white-space: nowrap; }
+
+/* Hero */
+.hero { display: grid; gap: 28px; padding: 24px 0 40px; }
+.hero h1 { font-weight: 900; font-size: clamp(54px, 12vw, 112px); text-transform: uppercase; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero .lede { max-width: 56ch; font-size: 19px; color: var(--muted); }
+.hero .lede strong { color: var(--ink); }
+
+.race { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 18px; }
+.race-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.race-head h2 { font-size: 24px; font-weight: 800; text-transform: uppercase; }
+.race-head p { font-size: 14px; color: var(--muted); }
+.lane { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center; }
+.lane-label { font-weight: 700; font-size: 15px; }
+.track { position: relative; height: 40px; }
+.track .bell { position: absolute; top: -6px; bottom: -6px; left: 75%; width: 0; border-left: 2px dashed var(--ink); }
+.bar { position: absolute; left: 0; top: 6px; height: 28px; border-radius: 6px; display: flex; align-items: center; padding: 0 10px; font-size: 14px; font-weight: 700; white-space: nowrap; color: #fff; }
+.bar.walk { width: 100%; background: var(--late); }
+.bar.ride { width: 35%; background: var(--ok); }
+.scale { display: grid; grid-template-columns: 64px 1fr; gap: 12px; }
+.scale-inner { position: relative; height: 20px; font-size: 13px; color: var(--muted); }
+.scale-inner span { position: absolute; transform: translateX(-50%); }
+.scale-inner .bell-label { color: var(--ink); font-weight: 700; }
+@media (prefers-reduced-motion: no-preference) {
+  .bar { transform-origin: left center; animation: grow 1.1s cubic-bezier(.2,.7,.2,1) both; }
+  .bar.ride { animation-delay: .35s; }
+  @keyframes grow { from { transform: scaleX(0.04); } to { transform: scaleX(1); } }
+}
+
+/* Facts strip */
+.facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.fact { background: var(--surface); padding: 16px; display: grid; gap: 4px; }
+.fact b { font-family: var(--font-display); font-weight: 900; font-size: 44px; line-height: 1; }
+.fact span { font-size: 14px; color: var(--muted); }
+
+/* App */
+.app { padding: 40px 0; display: grid; gap: 20px; }
+.section-title { display: grid; gap: 6px; }
+.section-title h2 { font-size: clamp(36px, 7vw, 56px); font-weight: 900; text-transform: uppercase; }
+.section-title p { color: var(--muted); max-width: 60ch; }
+.tabs { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px; gap: 4px; width: fit-content; }
+.tab { font: inherit; font-weight: 700; border: 0; background: transparent; color: var(--ink); padding: 10px 20px; border-radius: 999px; cursor: pointer; }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--paper); }
+.tab:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.panel { display: grid; gap: 16px; }
+.panel[hidden] { display: none; }
+.filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+select, input[type="text"] {
+  font: inherit; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; width: 100%;
+}
+
+/* Departure board */
+.board { background: var(--board); color: var(--board-ink); border-radius: 14px; overflow: hidden; }
+.board-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,.12); flex-wrap: wrap; }
+.board-head h3 { font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; }
+.board-head p { font-size: 14px; opacity: .75; }
+.rows { display: grid; }
+.row { display: grid; grid-template-columns: 92px 1fr auto; gap: 14px; align-items: center; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.row:last-child { border-bottom: 0; }
+.row .time { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1; color: #FFD27A; }
+.row .time small { display: block; font-family: var(--font-body); font-weight: 400; font-size: 12px; color: var(--board-ink); opacity: .7; margin-top: 4px; }
+.row .who { display: grid; gap: 2px; min-width: 0; }
+.row .who b { font-size: 17px; }
+.row .who span { font-size: 14px; opacity: .78; }
+.tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #7BB8E3; color: #0C1626; margin-left: 6px; vertical-align: 2px; }
+.req { font: inherit; font-weight: 700; font-size: 15px; border: 0; border-radius: 10px; padding: 10px 14px; background: #7BB8E3; color: #0C1626; cursor: pointer; white-space: nowrap; }
+.req:hover { background: #A5D0EE; }
+.req[disabled] { background: rgba(255,255,255,.14); color: var(--board-ink); cursor: default; }
+.row .note { grid-column: 2 / -1; font-size: 14px; color: #A8E6C1; }
+.empty { padding: 24px 18px; display: grid; gap: 12px; justify-items: start; }
+.empty p { opacity: .85; }
+.ghost { font: inherit; font-weight: 700; border: 1px solid rgba(255,255,255,.35); background: transparent; color: var(--board-ink); border-radius: 10px; padding: 10px 14px; cursor: pointer; }
+
+/* Offer form */
+.offer { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+.offer .full { grid-column: 1 / -1; }
+.primary { font: inherit; font-weight: 700; font-size: 17px; border: 0; border-radius: 10px; padding: 14px 18px; background: var(--ink); color: var(--paper); cursor: pointer; }
+.primary:hover { opacity: .9; }
+.confirm { background: var(--surface); border: 1px solid var(--ok); border-left-width: 6px; border-radius: 10px; padding: 14px 16px; }
+.confirm[hidden] { display: none; }
+.err { color: var(--late); font-size: 14px; }
+
+/* How + who */
+.how { padding: 40px 0; display: grid; gap: 20px; border-top: 1px solid var(--line); }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; counter-reset: step; list-style: none; padding: 0; margin: 0; }
+.steps li { display: grid; gap: 8px; align-content: start; }
+.steps li::before { counter-increment: step; content: counter(step); font-family: var(--font-display); font-weight: 900; font-size: 56px; line-height: .9; color: var(--accent); }
+.steps h3 { font-size: 24px; font-weight: 800; text-transform: uppercase; }
+.steps p { color: var(--muted); }
+.who-list { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 0; }
+.who-list li { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 14px; font-size: 15px; }
+
+footer { border-top: 1px solid var(--line); padding: 24px 0 40px; font-size: 14px; color: var(--muted); display: grid; gap: 6px; }
+
+@media (max-width: 720px) {
+  .filters { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr; }
+  .offer { grid-template-columns: 1fr; }
+  .fact b { font-size: 34px; }
+  .fact { padding: 12px; }
+  .fact span { font-size: 13px; }
+  .row { grid-template-columns: 76px 1fr; }
+  .row .req, .row .done { grid-column: 2; justify-self: start; }
+  .row .time { font-size: 26px; }
+}
+@media (max-width: 420px) {
+  .lane, .scale { grid-template-columns: 48px 1fr; }
+  .bar { font-size: 12px; padding: 0 8px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#find">Take a <span>Tar Heel</span></a>
+    <span class="demo-pill">Prototype · sample rides</span>
+  </header>
+
+  <section class="hero" aria-labelledby="hero-title">
+    <h1 id="hero-title">Late to McColl? <em>Take a Tar Heel.</em></h1>
+    <p class="lede">You get <strong>15 minutes</strong> between classes. The walk from North Campus to the business school takes about <strong>20</strong>. We match you with a Tar Heel who's already driving there.</p>
+
+    <div class="race" role="img" aria-label="Chart: walking takes about 20 minutes and arrives 5 minutes after class starts; a ride takes about 7 minutes and arrives 8 minutes early.">
+      <div class="race-head">
+        <h2>The passing period</h2>
+        <p>Minutes after your last class lets out · dashed line is when your McColl class starts</p>
+      </div>
+      <div class="lane">
+        <span class="lane-label">Walk</span>
+        <div class="track"><div class="bar walk">~20 min · 5 late</div><div class="bell"></div></div>
+      </div>
+      <div class="lane">
+        <span class="lane-label">Ride</span>
+        <div class="track"><div class="bar ride">~7 min · early</div><div class="bell"></div></div>
+      </div>
+      <div class="scale">
+        <span></span>
+        <div class="scale-inner tnum">
+          <span style="left:0%; transform:none">0</span>
+          <span style="left:25%">5</span>
+          <span style="left:50%">10</span>
+          <span class="bell-label" style="left:75%">15</span>
+          <span style="left:100%; transform:translateX(-100%)">20</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="facts tnum">
+      <div class="fact"><b>15</b><span>minutes between classes</span></div>
+      <div class="fact"><b>20</b><span>minute speed walk to McColl</span></div>
+      <div class="fact"><b>~7</b><span>minute ride with a Tar Heel</span></div>
+    </div>
+  </section>
+
+  <section class="app" id="find" aria-labelledby="app-title">
+    <div class="section-title">
+      <h2 id="app-title">Rides to McColl</h2>
+      <p>Pick your days, your class time and where you're coming from. Every driver is a UNC student arriving before your class starts.</p>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Rider or driver">
+      <button class="tab" role="tab" id="tab-find" aria-controls="panel-find" aria-selected="true">Find a ride</button>
+      <button class="tab" role="tab" id="tab-offer" aria-controls="panel-offer" aria-selected="false">Offer a ride</button>
+    </div>
+
+    <div class="panel" id="panel-find" role="tabpanel" aria-labelledby="tab-find">
+      <div class="filters">
+        <div class="field">
+          <label for="f-days">Days</label>
+          <select id="f-days">
+            <option value="MWF">Mon / Wed / Fri</option>
+            <option value="TTh">Tue / Thu</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-time">Class starts at</label>
+          <select id="f-time"></select>
+        </div>
+        <div class="field">
+          <label for="f-from">Coming from</label>
+          <select id="f-from"></select>
+        </div>
+      </div>
+
+      <div class="board" aria-live="polite">
+        <div class="board-head">
+          <h3>Departures to McColl</h3>
+          <p id="board-sub" class="tnum"></p>
+        </div>
+        <div class="rows" id="rows"></div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-offer" role="tabpanel" aria-labelledby="tab-offer" hidden>
+      <form class="offer" id="offer-form" novalidate>
+        <div class="field">
+          <label for="o-name">Your name</label>
+          <input type="text" id="o-name" placeholder="First name and last initial" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="o-car">Car (optional)</label>
+          <input type="text" id="o-car" placeholder="Gray Honda Civic" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="o-days">Days</label>
+          <select id="o-days">
+            <option value="MWF">Mon / Wed / Fri</option>
+            <option value="TTh">Tue / Thu</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="o-time">Your class at McColl starts</label>
+          <select id="o-time"></select>
+        </div>
+        <div class="field">
+          <label for="o-from">Leaving from</label>
+          <select id="o-from"></select>
+        </div>
+        <div class="field">
+          <label for="o-seats">Open seats</label>
+          <select id="o-seats">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+          </select>
+        </div>
+        <p class="err full" id="o-err" hidden>Add your name so riders know who's picking them up.</p>
+        <button class="primary full" type="submit">Put my ride on the board</button>
+        <div class="confirm full" id="o-confirm" hidden></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="how" aria-labelledby="how-title">
+    <div class="section-title">
+      <h2 id="how-title">How it works</h2>
+    </div>
+    <ol class="steps">
+      <li><h3>Add your schedule</h3><p>Sign in with your Onyen and enter the McColl classes you need to get to.</p></li>
+      <li><h3>Get matched</h3><p>We pair you with a student driving to McColl from near your last class, timed to the passing period.</p></li>
+      <li><h3>Ride and arrive early</h3><p>Hop in, chip in for gas, and walk into class before it starts.</p></li>
+    </ol>
+    <div class="section-title">
+      <h2 id="who-title" style="font-size:28px">Built for</h2>
+    </div>
+    <ul class="who-list" aria-labelledby="who-title">
+      <li>Students coming from North Campus classes</li>
+      <li>Bus riders whose route doesn't line up</li>
+      <li>Students with injuries or disabilities</li>
+      <li>Students heading to evening events</li>
+      <li>Students who drive and have open seats</li>
+      <li>Professors tired of late arrivals</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p><strong>Take a Tar Heel</strong> is a BUSI 200 recitation project at UNC Kenan-Flagler.</p>
+    <p>This prototype uses sample rides and sends no messages. It isn't affiliated with UNC Transportation and Parking or Chapel Hill Transit. Drive times are estimates.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  // Class start times (minutes after midnight) for standard UNC blocks
+  var SLOTS = {
+    MWF: [480, 545, 610, 675, 740, 805, 870, 935, 1000],
+    TTh: [480, 570, 660, 750, 840, 930, 1020]
+  };
+  // Pickup spots and estimated drive minutes to McColl
+  var SPOTS = [
+    { id: "granville", name: "Granville Towers", drive: 7 },
+    { id: "franklin", name: "Franklin St & Columbia", drive: 7 },
+    { id: "cobb", name: "Cobb Deck (North Campus)", drive: 6 },
+    { id: "union", name: "Student Union", drive: 5 },
+    { id: "craige", name: "Craige Deck", drive: 4 },
+    { id: "ehaus", name: "Ehringhaus", drive: 4 },
+    { id: "hj", name: "Hinton James", drive: 4 }
+  ];
+  var spotById = {};
+  SPOTS.forEach(function (s) { spotById[s.id] = s; });
+
+  function t(h, m) { return h * 60 + m; }
+  // Sample drivers: depart time; arrival = depart + drive
+  var drivers = [
+    { name: "Jordan M.", year: "'27", car: "Gray Honda Civic", days: "MWF", from: "granville", depart: t(7,45), seats: 3 },
+    { name: "Ava R.", year: "'28", car: "White Jeep Wrangler", days: "MWF", from: "cobb", depart: t(8,52), seats: 2 },
+    { name: "Priya S.", year: "'27", car: "Blue Toyota RAV4", days: "MWF", from: "granville", depart: t(9,56), seats: 3 },
+    { name: "Marcus T.", year: "'26", car: "Black Ford Escape", days: "MWF", from: "franklin", depart: t(9,58), seats: 1 },
+    { name: "Ella K.", year: "'29", car: "Silver Subaru Outback", days: "MWF", from: "craige", depart: t(10,0), seats: 2 },
+    { name: "Sam W.", year: "'27", car: "Red Mazda 3", days: "MWF", from: "union", depart: t(11,3), seats: 3 },
+    { name: "Luis G.", year: "'28", car: "Gray Hyundai Elantra", days: "MWF", from: "granville", depart: t(12,6), seats: 2 },
+    { name: "Hannah P.", year: "'29", car: "Green Kia Soul", days: "MWF", from: "hj", depart: t(12,10), seats: 3 },
+    { name: "Tyler B.", year: "'26", car: "White Honda Accord", days: "MWF", from: "franklin", depart: t(13,12), seats: 2 },
+    { name: "Grace L.", year: "'28", car: "Blue VW Jetta", days: "MWF", from: "ehaus", depart: t(14,20), seats: 1 },
+    { name: "Noah C.", year: "'27", car: "Black Toyota Camry", days: "TTh", from: "granville", depart: t(7,46), seats: 3 },
+    { name: "Maya D.", year: "'28", car: "Silver Honda CR-V", days: "TTh", from: "cobb", depart: t(9,16), seats: 2 },
+    { name: "Ben H.", year: "'29", car: "Gray Ford Fusion", days: "TTh", from: "granville", depart: t(9,18), seats: 3 },
+    { name: "Chloe N.", year: "'27", car: "White Tesla Model 3", days: "TTh", from: "union", depart: t(10,48), seats: 3 },
+    { name: "Ethan F.", year: "'26", car: "Blue Chevy Malibu", days: "TTh", from: "granville", depart: t(12,15), seats: 2 },
+    { name: "Zoe A.", year: "'28", car: "Red Toyota Corolla", days: "TTh", from: "franklin", depart: t(13,47), seats: 2 },
+    { name: "Owen J.", year: "'29", car: "Gray Subaru Crosstrek", days: "TTh", from: "craige", depart: t(15,20), seats: 3 },
+    { name: "Lily V.", year: "'27", car: "Black Jeep Cherokee", days: "TTh", from: "granville", depart: t(16,45), seats: 2 }
+  ];
+  drivers.forEach(function (d, i) { d.id = "d" + i; d.requested = false; });
+
+  function fmt(min) {
+    var h = Math.floor(min / 60), m = min % 60;
+    var ap = h >= 12 ? "PM" : "AM";
+    var h12 = h % 12 === 0 ? 12 : h % 12;
+    return h12 + ":" + (m < 10 ? "0" : "") + m + " " + ap;
+  }
+  function fmtShort(min) { return fmt(min).replace(" AM", "").replace(" PM", ""); }
+  function arrive(d) { return d.depart + spotById[d.from].drive; }
+  function el(id) { return document.getElementById(id); }
+
+  function fillSlots(selectEl, days, keep) {
+    var prev = keep ? Number(selectEl.value) : null;
+    selectEl.innerHTML = "";
+    SLOTS[days].forEach(function (s) {
+      var o = document.createElement("option");
+      o.value = String(s); o.textContent = fmt(s);
+      selectEl.appendChild(o);
+    });
+    if (prev && SLOTS[days].indexOf(prev) > -1) selectEl.value = String(prev);
+  }
+  function fillSpots(selectEl) {
+    SPOTS.forEach(function (s) {
+      var o = document.createElement("option");
+      o.value = s.id; o.textContent = s.name;
+      selectEl.appendChild(o);
+    });
+  }
+
+  var fDays = el("f-days"), fTime = el("f-time"), fFrom = el("f-from");
+  var oDays = el("o-days"), oTime = el("o-time"), oFrom = el("o-from");
+  fillSlots(fTime, "MWF"); fillSpots(fFrom);
+  fillSlots(oTime, "MWF"); fillSpots(oFrom);
+  // Open in a realistic state: MWF 10:10 class from Granville Towers
+  fTime.value = String(t(10,10));
+  fFrom.value = "granville";
+
+  function matches(days, start) {
+    return drivers.filter(function (d) {
+      var a = arrive(d);
+      return d.days === days && a <= start - 2 && a >= start - 15;
+    });
+  }
+
+  function render() {
+    var days = fDays.value, start = Number(fTime.value), from = fFrom.value;
+    var list = matches(days, start).sort(function (a, b) {
+      var sa = a.from === from ? 0 : 1, sb = b.from === from ? 0 : 1;
+      if (sa !== sb) return sa - sb;
+      return b.depart - a.depart;
+    });
+    el("board-sub").textContent = (days === "MWF" ? "Mon / Wed / Fri" : "Tue / Thu") + " · class at " + fmt(start);
+    var rows = el("rows");
+    rows.innerHTML = "";
+    if (!list.length) {
+      var near = SLOTS[days].filter(function (s) { return matches(days, s).length; })
+        .sort(function (a, b) { return Math.abs(a - start) - Math.abs(b - start); })[0];
+      var box = document.createElement("div");
+      box.className = "empty";
+      var p = document.createElement("p");
+      p.textContent = "No rides on the board for this class yet." + (near ? " The closest class time with rides is " + fmt(near) + "." : "");
+      var btn = document.createElement("button");
+      btn.className = "ghost"; btn.type = "button"; btn.textContent = "Offer the first ride";
+      btn.addEventListener("click", function () {
+        oDays.value = days; fillSlots(oTime, days); oTime.value = String(start); oFrom.value = from;
+        select("offer");
+      });
+      box.appendChild(p); box.appendChild(btn);
+      rows.appendChild(box);
+      return;
+    }
+    list.forEach(function (d) {
+      var spot = spotById[d.from];
+      var row = document.createElement("div");
+      row.className = "row";
+      var early = start - arrive(d);
+      row.innerHTML =
+        '<div class="time tnum">' + fmtShort(d.depart) + '<small>arrives ' + fmtShort(arrive(d)) + '</small></div>' +
+        '<div class="who"><b></b><span class="detail"></span></div>';
+      var b = row.querySelector(".who b");
+      b.textContent = d.name + " " + d.year;
+      if (d.from === from) {
+        var tag = document.createElement("span");
+        tag.className = "tag"; tag.textContent = "Your pickup";
+        b.appendChild(tag);
+      }
+      row.querySelector(".who .detail").textContent =
+        "From " + spot.name + " · " + d.car + " · " + d.seats + (d.seats === 1 ? " seat" : " seats") + " left · " + early + " min early";
+      var btn = document.createElement("button");
+      btn.className = "req"; btn.type = "button";
+      if (d.requested) { btn.textContent = "Requested"; btn.disabled = true; }
+      else if (d.seats < 1) { btn.textContent = "Full"; btn.disabled = true; }
+      else { btn.textContent = "Request seat"; }
+      btn.setAttribute("aria-label", "Request a seat with " + d.name);
+      btn.addEventListener("click", function () {
+        if (d.requested || d.seats < 1) return;
+        d.requested = true; d.seats -= 1;
+        render();
+      });
+      row.appendChild(btn);
+      if (d.requested) {
+        var note = document.createElement("p");
+        note.className = "note";
+        note.textContent = "Seat requested. Meet " + d.name.split(" ")[0] + " at " + spot.name + " by " + fmt(d.depart) + ". In the real app " + d.name.split(" ")[0] + " confirms by text; this demo sends nothing.";
+        row.appendChild(note);
+      }
+      rows.appendChild(row);
+    });
+  }
+
+  fDays.addEventListener("change", function () { fillSlots(fTime, fDays.value, true); render(); });
+  fTime.addEventListener("change", render);
+  fFrom.addEventListener("change", render);
+  oDays.addEventListener("change", function () { fillSlots(oTime, oDays.value, true); });
+
+  // Tabs
+  var tabs = { find: el("tab-find"), offer: el("tab-offer") };
+  var panels = { find: el("panel-find"), offer: el("panel-offer") };
+  function select(which) {
+    Object.keys(tabs).forEach(function (k) {
+      var on = k === which;
+      tabs[k].setAttribute("aria-selected", on ? "true" : "false");
+      panels[k].hidden = !on;
+    });
+  }
+  tabs.find.addEventListener("click", function () { select("find"); });
+  tabs.offer.addEventListener("click", function () { select("offer"); });
+
+  // Offer a ride
+  el("offer-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = el("o-name").value.trim();
+    if (!name) { el("o-err").hidden = false; el("o-name").focus(); return; }
+    el("o-err").hidden = true;
+    var days = oDays.value, start = Number(oTime.value), from = oFrom.value;
+    var depart = start - 8 - spotById[from].drive;
+    var d = {
+      id: "d" + drivers.length, name: name, year: "", car: el("o-car").value.trim() || "Car not listed",
+      days: days, from: from, depart: depart, seats: Number(el("o-seats").value), requested: false
+    };
+    drivers.push(d);
+    var c = el("o-confirm");
+    c.hidden = false;
+    c.textContent = "You're on the board for " + (days === "MWF" ? "Mon / Wed / Fri" : "Tue / Thu") + " at " + fmt(start) +
+      ". Leave " + spotById[from].name + " at " + fmt(depart) + " to reach McColl about 8 minutes early.";
+    fDays.value = days; fillSlots(fTime, days); fTime.value = String(start); fFrom.value = from;
+    render();
+    setTimeout(function () { select("find"); el("find").scrollIntoView({ behavior: "smooth", block: "start" }); }, 1400);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
