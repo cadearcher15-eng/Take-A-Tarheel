@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Take A Tar Heel</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#13294B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tar Heel Rides">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="Student rides to class at UNC. Older students with cars drive younger students without them, for a few dollars a seat.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%230B1F3F'/%3E%3Cpath d='M14 22l3.2-7.2c.5-1.1 1.6-1.8 2.8-1.8h8c1.2 0 2.3.7 2.8 1.8L34 22c1.7.2 3 1.6 3 3.3V30c0 1-.8 1.8-1.8 1.8H12.8c-1 0-1.8-.8-1.8-1.8v-4.7c0-1.7 1.3-3.1 3-3.3z' fill='%23fff'/%3E%3Cpath d='M17.6 21.5l2.2-5.2h8.4l2.2 5.2z' fill='%234B9CD3'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -88,7 +95,7 @@ section { scroll-margin-top: 12px; }
 .btn.block { width: 100%; }
 
 /* Header band */
-.topbar { background: var(--band); color: var(--band-ink); }
+.topbar { background: var(--band); color: var(--band-ink); padding-top: env(safe-area-inset-top, 0px); }
 .top { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; padding-block: 14px; flex-wrap: wrap; }
 .logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--band-ink); }
 .logo svg { width: 40px; height: 40px; flex: none; }
@@ -882,6 +889,7 @@ td .miss { color: var(--muted); }
         <details><summary>Why add my schedule?</summary><p>Once your classes are saved, My schedule shows the rides that line up with each one, and organizers can match you with drivers who have classes at the same time.</p></details>
         <details><summary>What if nobody is driving at my time?</summary><p>Join the waitlist for that time and drop-off. Drivers see how many riders are waiting when they create a ride.</p></details>
         <details><summary>Who sees my profile?</summary><p>Only signed-in UNC students see your photo, name, year, program and bio, on the rides you post or join. Your schedule, email and survey comments are visible to you and the organizers only.</p></details>
+        <details><summary>Can I get it as an app on my phone?</summary><p><b>iPhone:</b> open this site in Safari, tap the Share button (the square with an arrow), then <b>Add to Home Screen</b>. <b>Android:</b> open it in Chrome, tap the ⋮ menu, then <b>Add to Home screen</b> or <b>Install app</b>. It opens full-screen with its own icon. Sign in once inside the app with the code from your email.</p></details>
         <details><summary>Is this run by UNC?</summary><p>No. Take A Tar Heel is a student project and isn't affiliated with UNC, UNC Transportation and Parking or Chapel Hill Transit.</p></details>
       </div>
     </section>
@@ -2185,6 +2193,10 @@ td .miss { color: var(--muted); }
     setInterval(function () { if (!document.hidden) refreshAll(); }, 60000);
   }
   boot();
+  // Offline helper for the home-screen app
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+  }
 })();
 </script>
 </body>
