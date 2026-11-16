@@ -473,6 +473,10 @@ td .miss { color: var(--muted); }
 .signin form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
 .signin input { background: var(--bg); }
 .signin .msg { grid-column: 1 / -1; font-size: 14px; font-weight: 600; }
+.signin .msg:empty { display: none; }
+.code-row { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.code-row input { letter-spacing: .2em; font-variant-numeric: tabular-nums; }
+.linkish { grid-column: 1 / -1; justify-self: start; border: 0; background: none; padding: 0; color: var(--link); font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: underline; }
 .acct { display: flex; justify-content: space-between; align-items: center; gap: 10px 16px; flex-wrap: wrap; background: var(--surface); border-radius: 12px; padding: 12px 16px; font-size: 15px; }
 @media (max-width: 720px) { .signin { grid-template-columns: 1fr; } .signin form { grid-template-columns: 1fr; } }
 </style>
@@ -606,13 +610,19 @@ td .miss { color: var(--muted); }
       <div class="signin" id="signin" hidden>
         <div style="display:grid; gap:6px">
           <h3 id="signin-title">Sign in with your UNC email</h3>
-          <p id="signin-why">See live rides, join or post a ride, save your schedule and answer the survey. We'll email you a sign-in link; no password needed.</p>
+          <p id="signin-why">See live rides, join or post a ride, save your schedule and answer the survey. We'll email you a code; no password needed.</p>
         </div>
         <form id="signin-form" novalidate>
           <label class="sr" for="si-email">UNC email</label>
           <input type="email" id="si-email" placeholder="onyen@unc.edu" autocomplete="email" required>
-          <button class="btn primary" type="submit" id="si-btn">Email me a link</button>
+          <button class="btn primary" type="submit" id="si-btn">Email me a code</button>
           <p class="msg" id="si-msg" role="status"></p>
+          <div class="code-row" id="si-code-row" hidden>
+            <label class="sr" for="si-code">Code from the email</label>
+            <input type="text" id="si-code" inputmode="numeric" autocomplete="one-time-code" placeholder="Code from the email" maxlength="10">
+            <button class="btn primary" type="button" id="si-verify">Sign in</button>
+          </div>
+          <button class="linkish" type="button" id="si-have-code">I already have a code</button>
         </form>
       </div>
 
@@ -895,6 +905,8 @@ td .miss { color: var(--muted); }
 <script>
 (function () {
   "use strict";
+  // Read any sign-in result in the address bar before anything else touches it
+  var AUTH_URL = (location.hash || "") + "&" + (location.search || "").replace(/^\?/, "");
 
   // ---------- Reference data ----------
   var SLOTS = { MWF: [480, 545, 610, 675, 740, 805, 870, 935, 1000], TTh: [480, 570, 660, 750, 840, 930, 1020] };
@@ -2108,28 +2120,56 @@ td .miss { color: var(--muted); }
     });
   }
 
-  // Sign-in by emailed link
+  // Sign-in: an emailed code (scanner-proof) plus the emailed link as a shortcut
+  function siMsg(text, tone) { var m = el("si-msg"); m.textContent = text; m.style.color = tone ? "var(--" + tone + ")" : ""; }
+  function showCodeRow(focus) { el("si-code-row").hidden = false; el("si-have-code").hidden = true; if (focus) setTimeout(function () { el("si-code").focus(); }, 50); }
+  (function () { var e = recall("siemail"); if (e) el("si-email").value = e; })();
   el("signin-form").addEventListener("submit", function (e) {
     e.preventDefault();
-    var email = el("si-email").value.trim(), msg = el("si-msg");
-    msg.style.color = "";
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = "Enter your full email address, like onyen@unc.edu."; msg.style.color = "var(--danger)"; return; }
-    if (!/(@|\.)unc\.edu$/i.test(email)) { msg.textContent = "Use your UNC email (ending in unc.edu). Other addresses only work if an organizer added them."; msg.style.color = "var(--warn)"; }
+    var email = el("si-email").value.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { siMsg("Enter your full email address, like onyen@unc.edu.", "danger"); return; }
     var btn = el("si-btn"); btn.disabled = true; btn.textContent = "Sending…";
+    store("siemail", email);
     SB.auth.signInWithOtp({ email: email, options: { emailRedirectTo: location.origin + location.pathname } }).then(function (r) {
-      btn.disabled = false; btn.textContent = "Email me a link";
+      btn.disabled = false; btn.textContent = "Email me a code";
       if (r.error) {
         var m = r.error.message || "";
-        msg.style.color = "var(--danger)";
-        msg.textContent = /Database error|saving new user/i.test(m) ? "That address isn't a UNC email. Sign in with the email that ends in unc.edu."
-          : /rate limit|too many/i.test(m) ? "Too many sign-in emails were sent just now. Wait a few minutes and try again."
-          : "The link couldn't be sent: " + m;
+        siMsg(/Database error|saving new user/i.test(m) ? "That address isn't a UNC email. Use the email that ends in unc.edu."
+          : /rate limit|too many|after \d+ seconds/i.test(m) ? "A sign-in email was sent very recently. Wait a minute, then try again, or type the code from the last email below."
+          : "The email couldn't be sent: " + m, "danger");
+        if (/rate limit|too many|after \d+ seconds/i.test(m)) showCodeRow(true);
         return;
       }
-      msg.style.color = "var(--ok)";
-      msg.textContent = "Check your inbox for a link from Take A Tar Heel and open it on this device. It can take a minute, and UNC mail sometimes files it under Junk.";
-    }, function () { btn.disabled = false; btn.textContent = "Email me a link"; msg.style.color = "var(--danger)"; msg.textContent = "Couldn't reach the server. Check your connection and try again."; });
+      siMsg("We emailed a code to " + email + ". Type it below. It can take a minute to arrive, so check Junk too.", "ok");
+      showCodeRow(true);
+    }, function () { btn.disabled = false; btn.textContent = "Email me a code"; siMsg("Couldn't reach the server. Check your connection and try again.", "danger"); });
   });
+  function verifyCode() {
+    var email = el("si-email").value.trim().toLowerCase(), code = el("si-code").value.replace(/\D/g, "");
+    if (!email) { siMsg("Enter your UNC email above first.", "danger"); el("si-email").focus(); return; }
+    if (code.length < 6) { siMsg("Type the code from the email (6 or more digits).", "danger"); el("si-code").focus(); return; }
+    var b = el("si-verify"); b.disabled = true; b.textContent = "Checking…";
+    SB.auth.verifyOtp({ email: email, token: code, type: "email" }).then(function (r) {
+      b.disabled = false; b.textContent = "Sign in";
+      if (r.error) { siMsg(/expired|invalid/i.test(r.error.message || "") ? "That code is wrong or has expired. Check you typed the newest one, or ask for a new code." : "Couldn't sign in: " + r.error.message, "danger"); return; }
+      siMsg("Signed in.", "ok"); el("si-code").value = "";
+    }, function () { b.disabled = false; b.textContent = "Sign in"; siMsg("Couldn't reach the server. Check your connection and try again.", "danger"); });
+  }
+  el("si-verify").addEventListener("click", verifyCode);
+  el("si-code").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); verifyCode(); } });
+  el("si-have-code").addEventListener("click", function () { showCodeRow(true); });
+  // A link that was already used (often by a mail scanner) comes back with an error instead of a session
+  function explainAuthUrl() {
+    var m = /error_description=([^&]*)/.exec(AUTH_URL);
+    if (!m) return;
+    var why = decodeURIComponent(m[1].replace(/\+/g, " "));
+    try { history.replaceState(null, "", location.pathname); } catch (e) {}
+    siMsg((/expired|invalid/i.test(why) ? "That sign-in link was already used or has expired. UNC's email scanner sometimes opens links before you do. " : "Sign-in didn't finish (" + why + "). ")
+      + "Type the code from the email below instead, or ask for a new one.", "danger");
+    showCodeRow(true);
+    setTimeout(function () { el("signin").scrollIntoView({ block: "center" }); }, 300);
+  }
+
   el("signin-top").addEventListener("click", function () { go("join"); setTimeout(function () { el("signin").scrollIntoView({ block: "center" }); el("si-email").focus(); }, 80); });
   el("signout").addEventListener("click", function () { SB.auth.signOut().then(function () { toast("Signed out."); }); });
 
@@ -2137,6 +2177,7 @@ td .miss { color: var(--muted); }
     fillProfileForm(null); buildSchedForm();
     if (!SB) { S.mode = "preview"; renderAll(); return; }
     renderAll();
+    explainAuthUrl();
     SB.auth.onAuthStateChange(function (event, session) {
       // Supabase asks that other calls run outside this callback
       setTimeout(function () { setSession(session); }, 0);

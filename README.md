@@ -72,7 +72,13 @@ Supabase's built-in email service only sends a few sign-in emails per hour for t
    - Username: the Gmail address
    - Password: the app password
 3. Click **Save**, then open **Authentication → Rate Limits** and raise **Rate limit for sending emails** (for example, to 100 per hour).
-4. Optional: edit the **Magic Link** template under **Authentication → Emails** so it mentions Take A Tar Heel.
+4. **Put the sign-in code in the emails** (required). UNC's Microsoft email scans links before students click them, which uses up one-time sign-in links. The site therefore asks for the code from the email instead. In **Authentication → Emails → Templates**, edit both **Confirm signup** and **Magic link** so the body includes `{{ .Token }}`, for example:
+   ```html
+   <h2>Your Take A Tar Heel sign-in code</h2>
+   <p style="font-size:28px;letter-spacing:4px"><strong>{{ .Token }}</strong></p>
+   <p>Type this code on the site to sign in. It expires in one hour.</p>
+   <p>If you didn't ask for this, you can ignore this email.</p>
+   ```
 
 People only sign in once per device; the site keeps them signed in afterward. UNC mail sometimes files new senders under Junk, so tell testers to check there.
 
